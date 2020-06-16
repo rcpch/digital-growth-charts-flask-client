@@ -15,9 +15,9 @@ For details of our typical Python development setup, see the API repository http
 These instructions assume you are also running the API application on the same machine, which is why it reassigns the client's Flask port to 5001, on the presumption that the API is on 5000. If you are using an alternative setup then you can just run Flask on 5000.
 
 * `git clone` this repository into a suitable location on your development machine  
-`$git clone https://github.com/rcpch/digital-growth-charts-flask-client.git`  
+`$ git clone https://github.com/rcpch/digital-growth-charts-flask-client.git`  
 * `cd` into the directory  
-`$cd digital-growth-charts-flask-client`  
+`$ cd digital-growth-charts-flask-client`  
 * install the Python dependencies  
 `$ pip install -r requirements.txt`  
 * Tell Flask you are in Development mode  
