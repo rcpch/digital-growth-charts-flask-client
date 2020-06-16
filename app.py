@@ -96,6 +96,11 @@ def chart():
     return render_template('chart.html')
 
 
+@app.route("/instructions", methods=['GET'])
+def instructions():
+    html = requests.get(f'{API_BASEURL}/api/v1/json/instructions') 
+    return render_template('instructions.html', fill=html)
+
 
 # IMPORT EXCEL FILE
 @app.route("/import", methods=['GET', 'POST'])
