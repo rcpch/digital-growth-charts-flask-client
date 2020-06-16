@@ -31,6 +31,6 @@ These instructions assume you are also running the API application on the same m
 
 ## Open Source License
 
-This work is Copyright (c)2020 The Royal College of Paediatrics and Child Health, and is released under the MIT Open Source License  
+This work is Copyright ⓒ2020 The Royal College of Paediatrics and Child Health, and is released under the MIT Open Source License  
 
 ## Contributing
