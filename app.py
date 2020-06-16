@@ -98,8 +98,8 @@ def chart():
 
 @app.route("/instructions", methods=['GET'])
 def instructions():
-    html = requests.get(f'{API_BASEURL}/api/v1/json/instructions') 
-    return render_template('instructions.html', fill=html)
+    html = requests.get(f'{API_BASEURL}/api/v1/json/instructions')
+    return render_template('instructions.html', fill=html.json())
 
 
 # IMPORT EXCEL FILE
