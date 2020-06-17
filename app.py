@@ -34,6 +34,18 @@ print(f'{OKGREEN} * Growth Charts API_BASEURL is {API_BASEURL}{ENDC}')
 FLASK CLIENT ROUTES
 """
 
+
+# FICTIONAL CHILD
+@app.route("/fictional_child/<id>", methods=['POST'])
+def fictional_child(id):
+    data = requests.get(f'{API_BASEURL}/api/v1/json/fictionalchild')
+    # store the results in a session for access by tables and charts later
+    session['results'] = data
+    # flag to differentiate between individual plot and serial data plot
+    session['serial_data'] = True
+    return render_template('fictional_data.html', data=data)
+
+
 # CALCULATIONS FORM
 @app.route("/", methods=['GET', 'POST'])
 def home():
