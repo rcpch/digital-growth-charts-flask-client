@@ -68,7 +68,7 @@ def home():
                 params=payload
             )
 
-            print(response.json())
+            # print(response.json())
 
             # store the results in a session for access by tables and charts later
             session['results'] = response.json()
@@ -108,16 +108,12 @@ def chart():
     results = session.get('results')
     serial_data = session.get('serial_data')
     payload = {
-        "serial_data": serial_data,
-        "results": results
+        "results": json.dumps(results),
+        "serial_data": serial_data
     }
     
-    data = requests.get(
-        f'{API_BASEURL}/api/v1/json/chart_data', 
-        params=payload
-    )
-    # print(data)
-    return render_template('chart.html', data=data)
+    data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload)
+    return render_template('chart.html', data=data.json())
 
 
 @app.route("/instructions", methods=['GET'])

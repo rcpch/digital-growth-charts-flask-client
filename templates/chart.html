@@ -30,7 +30,8 @@
       var measurements = ['height', 'weight', 'bmi', 'ofc'];
 
       var getData = $.get('http://localhost:5000/api/v1/json/chart_data');
-      getData.done(function(results) {
+      getData.done(function(results){
+        console.log(results)
         if (results.sex == 'male') {
           sex_color = boy;
         }
