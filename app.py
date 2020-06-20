@@ -26,7 +26,7 @@ WARNING = '\033[93m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 
-API_BASEURL=environ.get('GROWTH_API_BASEURL') or 'http://localhost:5000'
+API_BASEURL=environ.get('GROWTH_API_BASEURL') or 'http://localhost:5001'
 print(f'{OKGREEN} * Growth Charts API_BASEURL is {API_BASEURL}{ENDC}')
 
 
@@ -74,7 +74,7 @@ def home():
             session['results'] = response.json()
 
             # flag to differentiate between individual plot and serial data plot
-            session['serial_data'] = False
+            session['serial_data'] = "false"
 
             return redirect(url_for('results', id='table'))
 
@@ -105,7 +105,19 @@ def results(id):
 # CHART
 @app.route("/chart", methods=['GET'])
 def chart():
-    return render_template('chart.html')
+    results = session.get('results')
+    serial_data = session.get('serial_data')
+    payload = {
+        "serial_data": serial_data,
+        "results": results
+    }
+    
+    data = requests.get(
+        f'{API_BASEURL}/api/v1/json/chart_data', 
+        params=payload
+    )
+    # print(data)
+    return render_template('chart.html', data=data)
 
 
 @app.route("/instructions", methods=['GET'])

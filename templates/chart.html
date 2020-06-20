@@ -29,7 +29,7 @@
       var max_ticks = 0;
       var measurements = ['height', 'weight', 'bmi', 'ofc'];
 
-      var getData = $.get('http://localhost:5001/api/v1/json/chart_data');
+      var getData = $.get('http://localhost:5000/api/v1/json/chart_data');
       getData.done(function(results) {
         if (results.sex == 'male') {
           sex_color = boy;
