@@ -211,7 +211,8 @@ def uploaded_data(id):
                     # store the response as JSON in global variable for conversion back to excel format for download if requested
                     
                     requested_data = data.json()
-                    session["results"] = requested_data
+                    # session["results"] = requested_data
+
                     
                     # TODO - create endpoint to calculate velocity +/- correlated weight centiles
                     # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
