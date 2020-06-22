@@ -7,9 +7,9 @@ from flask_cors import CORS
 import markdown
 import requests
 import json
-from client_controllers import chunk_file, import_excel_data
+from client_controllers import chunk_file, import_excel_data, download_excel
 from werkzeug.utils import secure_filename
-import babel
+from pathlib import Path
 
 # client side controller to manipulate excel sheet
 """
@@ -102,10 +102,11 @@ def client_references():
 @app.route("/results/<id>/<unique_child>", methods=['GET', 'POST'])
 def results(id, unique_child):
     results = session.get('results')
+
     if id == 'table':
         return render_template('test_results.html', result=results, unique_child=unique_child)
     if id == 'chart':
-        return render_template('chart.html', unique_child=unique_child)
+        return render_template('chart.html', data=results, unique_child=unique_child)
 
 
 # CHART
@@ -144,88 +145,93 @@ def import_growth_data():
 
 # UPLOAD EXCEL FILE?
 # TODO: Definitely needs to be deprecated in favour of a PR model of submitting reference data
-@app.route("/uploaded_data", methods=['GET', 'POST'])
-## excel now uploaded. Needs validating.
-def uploaded_data():
-    # get file from static directory and check if meets criteria and then set flag unique_child
-    static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
-    requested_data = None
-    unique_child = "false"
-    for file_name in listdir(static_directory):
-        if file_name != 'dummy_data.xlsx':
-            """
-            Loop through static/upload folder
-            Avoid the example sheet
-            Save there temporarily, import the data then delete
-            """
-            file_path = path.join(static_directory, file_name)
-            try:
-                # import the data from excel and validate, delete the file once imported (True flag)
-                child_data = import_excel_data.import_excel_sheet(file_path, True)
-                # extract the dataframe - rejected if not in the correct format. Date convert to ISO8601 here.
-                data_frame = child_data['data']
-                unique_child = child_data['unique_child'] #API returns if these data are from one child
-                
-            except ValueError as e:
-                
+@app.route("/uploaded_data/<id>", methods=['GET', 'POST'])
+## excel now uploaded. Needs validating
+def uploaded_data(id):
+    global requested_data
+    global unique_child
+    if id=='sheet':
+        # get file from static directory and check if meets criteria and then set flag unique_child
+        static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
+        for file_name in listdir(static_directory):
+            if file_name != 'dummy_data.xlsx':
                 """
-                Error handler - uploaded sheet is incompatible: missing essential data
+                Loop through static/upload folder
+                Avoid the example sheet
+                Save there temporarily, import the data then delete
                 """
-                print(e)
-                flash(f"{e}")
-                data=None
-                render_template('uploaded_data.html', data=data, unique=False, dynamic_calculations=None)
+                file_path = path.join(static_directory, file_name)
+                try:
+                    # import the data from excel and validate, delete the file once imported (True flag)
+                    child_data = import_excel_data.import_excel_sheet(file_path, True)
+                    # extract the dataframe - rejected if not in the correct format. Date convert to ISO8601 here.
+                    data_frame = child_data['data']
+                    unique_child = child_data['unique_child'] #API returns if these data are from one child
+                    
+                    
+                except ValueError as e:
+                    
+                    """
+                    Error handler - uploaded sheet is incompatible: missing essential data
+                    """
+                    print(e)
+                    flash(f"{e}")
+                    data=None
+                    render_template('uploaded_data.html', data=data, unique_child=False, dynamic_calculations=None)
 
-            except LookupError as l:
-                
-                """
-                Error handler - uploaded sheet is incompatible: headings are missing or too many or misspelled
-                """
+                except LookupError as l:
+                    
+                    """
+                    Error handler - uploaded sheet is incompatible: headings are missing or too many or misspelled
+                    """
 
-                data=None
-                print(l)
-                flash(f"{l}")
-                data=None
-                render_template('uploaded_data.html', data=data, unique=False, dynamic_calculations=None)
-            
+                    data=None
+                    print(l)
+                    flash(f"{l}")
+                    data=None
+                    render_template('uploaded_data.html', data=data, unique_child=False, dynamic_calculations=None)
+                
+                else:
+                    """
+                    Data is correct format
+                    Load as JSON and report to table
+                    If the imported data is all same patient (on basis of unique birth_date),
+                    offer the opportunity to chart it, calculate velocity and acceleration of most recent parameters
+                    """
+                    #serialise dataframe as JSON
+                    data = json.loads(data_frame)
+                    
+                    #pass data to the api for calculation
+                    payload = {
+                        "uploaded_data": json.dumps(data)
+                    }
+                    
+                    data = requests.get(f"{API_BASEURL}/api/v1/json/serial_data_calculations", params=payload)
+                    
+                    # store the response as JSON in global variable for conversion back to excel format for download if requested
+                    
+                    requested_data = data.json()
+                    session["results"] = requested_data
+                    
+                    # TODO - create endpoint to calculate velocity +/- correlated weight centiles
+                    # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
+                    
+                    return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
             else:
-                """
-                Data is correct format
-                Load as JSON and report to table
-                If the imported data is all same patient (on basis of unique birth_date),
-                offer the opportunity to chart it, calculate velocity and acceleration of most recent parameters
-                """
-                #serialise dataframe as JSON
-                data = json.loads(data_frame)
-                
-                #pass data to the api for calculation
-                payload = {
-                    "uploaded_data": json.dumps(data)
-                }
-                
-                data = requests.get(f"{API_BASEURL}/api/v1/json/serial_data_calculations", params=payload)
-                
-                # store the response as JSON in global variable for conversion back to excel format for download if requested
-                
-                requested_data = data.json() 
-                unique_child = unique_child
-                
-                # TODO - create endpoint to calculate velocity +/- correlated weight centiles
-                # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
-                
+                #TODO this is the example sheet - download and return the data
                 return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
-        else:
-            #TODO this is the example sheet - download and return the data
-            return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
-                        
-        # return render_template('uploaded_data.html', data=data, unique_child=unique_child, dynamic_calculations = dynamic_calculations)
-        # if id=='get_excel': 
-        #     ## broken needs fix - file deleted so can't download
-        #     # excel_file = controllers.download_excel(requested_data)
-        #     # temp_directory = Path.cwd().joinpath("static").joinpath('uploaded_data').joinpath('temp')
-        #     # return send_from_directory(temp_directory, filename='output.xlsx', as_attachment=True)
-        #     print('currently a placeholder pending fix')
-
+                            
+            # return render_template('uploaded_data.html', data=data, unique_child=unique_child, dynamic_calculations = dynamic_calculations)
+            # if id=='get_excel': 
+            #     
+    elif id=='download':
+        ## broken needs fix - file deleted so can't download
+        download_excel.save_as_excel(requested_data)
+        temp_directory = Path.cwd().joinpath("static").joinpath('uploaded_data')
+        send_from_directory(directory=temp_directory, filename='output.xlsx', as_attachment=True)
+        file_path = temp_directory.joinpath('output.xlsx')
+        # remove(file_path)
+        return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
 
 if __name__ == '__main__':
     app.run()

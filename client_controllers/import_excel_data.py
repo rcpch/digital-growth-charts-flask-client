@@ -3,7 +3,7 @@ from os import path, listdir, remove
 
 def import_excel_sheet(file_path: str, can_delete: bool):
 
-    UNIQUE_CHILD = "false" ## this string flags if uploaded data belong to a single child (common birth_date) or multiple children (different birth_date)
+    unique_child = "false" ## this string flags if uploaded data belong to a single child (common birth_date) or multiple children (different birth_date)
     
     data_frame = pd.read_excel(file_path)
     
@@ -48,11 +48,13 @@ def import_excel_sheet(file_path: str, can_delete: bool):
 
         if data_frame['birth_date'].nunique() > 1:
             print('these are not all data from the same patient. They cannot be charted.') #do not chart these values
-            UNIQUE_CHILD = "false"
+            unique_child = "false"
+        else:
+            unique_child = "true"
 
         return {
             'data': data_frame.to_json(orient='records', date_format='epoch'),
-            'unique_child': UNIQUE_CHILD
+            'unique_child': unique_child
         }
 
     """

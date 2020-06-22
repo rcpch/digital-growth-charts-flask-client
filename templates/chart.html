@@ -30,7 +30,6 @@
       var measurements = ['height', 'weight', 'bmi', 'ofc'];
 
       var results = JSON.parse('{{data|tojson|safe}}')
-      console.log(results);
       
       if (results.sex == 'male') {
         sex_color = boy;
@@ -706,6 +705,6 @@
                     options: options
                   });
                 }
-            }
-      </script> 
+      }
+    </script> 
 {% endblock %}
