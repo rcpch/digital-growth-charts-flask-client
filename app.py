@@ -36,7 +36,7 @@ WARNING = '\033[93m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
 
-API_BASEURL=environ.get('GROWTH_API_BASEURL') or 'http://localhost:5001'
+API_BASEURL=environ.get('GROWTH_API_BASEURL') or 'http://localhost:5000'
 print(f'{OKGREEN} * Growth Charts API_BASEURL is {API_BASEURL}{ENDC}')
 
 
@@ -205,14 +205,15 @@ def uploaded_data(id):
                     payload = {
                         "uploaded_data": json.dumps(data)
                     }
-                    
+
+
                     data = requests.get(f"{API_BASEURL}/api/v1/json/serial_data_calculations", params=payload)
                     
                     # store the response as JSON in global variable for conversion back to excel format for download if requested
                     
-                    requested_data = data.json()
+                    requested_data=data.json()
+                    
                     # session["results"] = requested_data
-
                     
                     # TODO - create endpoint to calculate velocity +/- correlated weight centiles
                     # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
