@@ -31,25 +31,25 @@
             {% for m in data %}
             <tr>
               <td>{{ loop.index }}</td>
-              <td>{{ m.birth_date }}</td>
-              <td>{{ m.observation_date }}</td>
-              <td>{{ m.gestation_weeks}}</td>
-              <td>{{ m.gestation_days }}</td>
-              <td>{{ m.estimated_date_delivery }}</td>
-              <td>{{ m.chronological_decimal_age }}</td>
-              <td>{{ m.corrected_decimal_age }}</td>
-              <td>{{ m.sex }}</td>
-              <td>{{ m.measurement_type }}</td>
-              <td>{{ m.measurement_value }}</td>
-              <td>{{ m.sds }}</td>
-              <td>{{ m.centile}}</td>
+              <td>{{ m.birth_data.birth_date }}</td>
+              <td>{{ m.measurement_dates.observation_date }}</td>
+              <td>{{ m.birth_data.gestation_weeks}}</td>
+              <td>{{ m.birth_data.gestation_days }}</td>
+              <td>{{ m.birth_data.estimated_date_delivery }}</td>
+              <td>{{ m.measurement_dates.chronological_decimal_age|round(1) }}</td>
+              <td>{{ m.measurement_dates.corrected_decimal_age|round(1) }}</td>
+              <td>{{ m.birth_data.sex }}</td>
+              <td>{{ m.child_observation_value.measurement_type }}</td>
+              <td>{{ m.child_observation_value.measurement_value }}</td>
+              <td>{{ m.measurement_calculated_values.sds|round(2) }}</td>
+              <td>{{ m.measurement_calculated_values.centile|round|int}}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        <button onclick="window.location.href='{{url_for('uploaded_data', id='get_excel')}}'" class="green ui button" type="submit">Download .XLSX</button>
+        <!-- <button onclick="window.location.href='{{url_for('uploaded_data', id='get_excel', unique_child=unique_child)}}'" class="green ui button" type="submit">Download .XLSX</button> -->
         {% if unique %}
-          <div class="ui green button" onclick="window.location.href='{{url_for('chart')}}'" type='submit'>Chart</div>
+          <div class="ui green button" onclick="window.location.href='{{url_for('chart', unique_child=unique_child)}}'" type='submit'>Chart</div>
           <div class="ui green button" id='velocityButton'>Dynamic Calculations</div>
           <div class="ui modal">
             <div class="header">Velocities and Accelerations</div>
