@@ -45,9 +45,15 @@ FLASK CLIENT ROUTES
 """
 
 # FICTIONAL CHILD
-@app.route("/fictional_child/<id>", methods=['POST'])
-def fictional_child(id):
-    data = requests.get(f'{API_BASEURL}/api/v1/json/fictionalchild')
+@app.route("/fictionalchild", methods=['POST'])
+def fictional_child():
+    payload = {
+        # 'key' : 'value'
+    }
+    data = requests.get(
+        f'{API_BASEURL}/api/v1/json/fictionalchild',
+        params = payload
+    )
     # store the results in a session for access by tables and charts later
     session['results'] = data
     # flag to differentiate between individual plot and serial data plot
