@@ -489,7 +489,7 @@
         </div>
         
         <div class="ui container">
-            <div class="ui green button" onclick="window.location.href='{{url_for('chart')}}'" type='submit'>Chart</div>
+            <div class="ui green button" onclick="window.location.href='{{url_for('chart', data=result, unique_child=unique_child)}}'" type='submit'>Chart</div>
         </div>
     {% endif %}
     <script>

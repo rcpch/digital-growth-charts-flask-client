@@ -1,16 +1,26 @@
-from os import path, listdir, remove, environ
+
 from datetime import datetime
-from pathlib import Path
-from measurement_request import MeasurementForm
-from werkzeug.utils import secure_filename
+from os import path, listdir, remove, environ
+from measurement_request import MeasurementForm, FictionalChildForm
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session
+from flask_cors import CORS
 import markdown
 import requests
 import json
+from client_controllers import chunk_file, import_excel_data, download_excel
+from werkzeug.utils import secure_filename
+from pathlib import Path
+
+# client side controller to manipulate excel sheet
+"""
+we have two options here: either upload the spreadsheet, store it temporarily client side in order to create the dataframe and 
+manipulate fields client side here, or send the dataframe to the server. The second option is preferable
+"""
 
 
 app = Flask(__name__, static_folder='static')
 app.config['SECRET_KEY'] = 'UK_WHO' #not very secret - this will need complicating and adding to config
+CORS(app)
 
 from app import app
 
@@ -33,7 +43,6 @@ print(f'{OKGREEN} * Growth Charts API_BASEURL is {API_BASEURL}{ENDC}')
 """
 FLASK CLIENT ROUTES
 """
-
 
 # FICTIONAL CHILD
 @app.route("/fictional_child/<id>", methods=['POST'])
@@ -68,15 +77,12 @@ def home():
                 params=payload
             )
 
-            print(response.json())
-
             # store the results in a session for access by tables and charts later
             session['results'] = response.json()
 
             # flag to differentiate between individual plot and serial data plot
-            session['serial_data'] = False
-
-            return redirect(url_for('results', id='table'))
+            # session['serial_data'] = "false"
+            return redirect(url_for('results', id='table', unique_child="false"))
 
         # form not validated. Need flash warning here
         return render_template('measurement_form.html', form = form)
@@ -93,19 +99,27 @@ def client_references():
 
 
 # RESULTS
-@app.route("/results/<id>", methods=['GET', 'POST'])
-def results(id):
+@app.route("/results/<id>/<unique_child>", methods=['GET', 'POST'])
+def results(id, unique_child):
     results = session.get('results')
+
     if id == 'table':
-        return render_template('test_results.html', result = results)
+        return render_template('test_results.html', result=results, unique_child=unique_child)
     if id == 'chart':
-        return render_template('chart.html')
+        return render_template('chart.html', data=results, unique_child=unique_child)
 
 
 # CHART
-@app.route("/chart", methods=['GET'])
-def chart():
-    return render_template('chart.html')
+@app.route("/chart/<unique_child>", methods=['GET'])
+def chart(unique_child):
+    results = session.get('results')
+    payload = {
+        "results": json.dumps(results), #serialised as json
+        "unique_child": unique_child
+    }
+    
+    data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload)
+    return render_template('chart.html', data=data.json())
 
 
 @app.route("/instructions", methods=['GET'])
@@ -117,159 +131,109 @@ def instructions():
 # IMPORT EXCEL FILE
 @app.route("/import", methods=['GET', 'POST'])
 def import_growth_data():
+    form = FictionalChildForm()
     if request.method == 'POST':
         ## can only receive .xls, .xlsx, or .csv files
-        ## thanks to Chris Griffith, Code Calamity for this code - upload files, chunk if large
         file = request.files['file']
         static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
         file_to_save = path.join(static_directory, secure_filename(file.filename))
-        current_chunk = int(request.form['dzchunkindex'])
-
-        # If the file already exists it's ok if we are appending to it,
-        # but not if it's new file that would overwrite the existing one
-        if path.exists(file_to_save) and current_chunk == 0:
-            # 400 and 500s will tell dropzone that an error occurred and show an error
-            return make_response(('File already exists', 400))
-
-        try:
-            with open(file_to_save, 'ab') as f:
-                f.seek(int(request.form['dzchunkbyteoffset']))
-                f.write(file.stream.read())
-        except OSError:
-            # log.exception will include the traceback so we can see what's wrong 
-            print('Could not write to file')
-            return make_response(("Not sure why,"
-                                " but we couldn't write the file to disk", 500))
-
-        total_chunks = int(request.form['dztotalchunkcount'])
-
-        if current_chunk + 1 == total_chunks:
-            # This was the last chunk, the file should be complete and the size we expect
-            if path.getsize(file_to_save) != int(request.form['dztotalfilesize']):
-                assert(f"File {file.filename} was completed, "
-                        f"but has a size mismatch."
-                        f"Was {os.path.getsize(save_path)} but we"
-                        f" expected {request.form['dztotalfilesize']} ")
-                return make_response(('Size mismatch', 500))
-            else:
-                print(f'File {file.filename} has been uploaded successfully')
-                # return make_response('Upload Successful', 200)
-                return make_response('success', 200)
-        else:
-            print(f'Chunk {current_chunk + 1} of {total_chunks} '
-                    f'for file {file.filename} complete')
-
-        return make_response("Chunk upload successful", 200)
-            
+        controller_response = chunk_file.chunk_file(file, file_to_save)
+        return make_response(controller_response["response"], controller_response["response_code"])
     else:
-        return render_template('import.html')
+        return render_template('import.html', form=form)
 
 
 # UPLOAD EXCEL FILE?
 # TODO: Definitely needs to be deprecated in favour of a PR model of submitting reference data
 @app.route("/uploaded_data/<id>", methods=['GET', 'POST'])
+## excel now uploaded. Needs validating
 def uploaded_data(id):
     global requested_data
-    if request.method == 'GET':
-        static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data/")
-        if id == 'example':
-            ## Have requested to view the sample data
-            file_path = path.join(static_directory, 'dummy_data.xlsx')
-            loaded_data = controllers.import_excel_sheet(file_path, False) #false flag prevents deleting file once data imported
-            data = json.loads(loaded_data['data'])
-            """
-            converts ISO8601 to UK readable dates
-            """
-            for i in data:
-                if(i['birth_date']):
-                    i['birth_date'] =  datetime.strftime(datetime.fromtimestamp(i['birth_date']/1000), '%d/%m/%Y')
-                if(i['observation_date']):    
-                    i['observation_date'] =  datetime.strftime(datetime.fromtimestamp(i['observation_date']/1000), '%d/%m/%Y')
-                if(i['estimated_date_delivery']): 
-                    i['estimated_date_delivery'] =  datetime.strftime(datetime.fromtimestamp(i['estimated_date_delivery']/1000), '%d/%m/%Y')
-            # store the formatted data in a global variable
-            requested_data = data
-            ## this data is not from a unique patient - cannot graph or produce velocities
-            return render_template('uploaded_data.html', data=data, unique=loaded_data['unique'], dynamic_calculations=None)
-        if id == 'excel_sheet':
-            for file_name in listdir(static_directory):
-                if file_name != 'dummy_data.xlsx':
-                    """
-                    Loop through static/upload folder
-                    Avoid the example sheet
-                    Save there temporarily, import the data then delete
-                    """
-                    file_path = path.join(static_directory, file_name)
-                    try:
-                        # import the data from excel and validate, delete the file once imported (True flag)
-                        child_data = controllers.import_excel_sheet(file_path, True)
-                        # extract the dataframe
-                        data_frame = child_data['data']
+    global unique_child
+    if id=='sheet':
+        # get file from static directory and check if meets criteria and then set flag unique_child
+        static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
+        for file_name in listdir(static_directory):
+            if file_name != 'dummy_data.xlsx':
+                """
+                Loop through static/upload folder
+                Avoid the example sheet
+                Save there temporarily, import the data then delete
+                """
+                file_path = path.join(static_directory, file_name)
+                try:
+                    # import the data from excel and validate, delete the file once imported (True flag)
+                    child_data = import_excel_data.import_excel_sheet(file_path, True)
+                    # extract the dataframe - rejected if not in the correct format. Date convert to ISO8601 here.
+                    data_frame = child_data['data']
+                    unique_child = child_data['unique_child'] #API returns if these data are from one child
                     
-                    except ValueError as e:
-                        
-                        """
-                        Error handler - uploaded sheet is incompatible: missing essential data
-                        """
-                        print(e)
-                        flash(f"{e}")
-                        data=None
-                        render_template('uploaded_data.html', data=data, unique=False, dynamic_calculations=None)
-
-                    except LookupError as l:
-                        
-                        """
-                        Error handler - uploaded sheet is incompatible: headings are missing or too many or misspelled
-                        """
-
-                        data=None
-                        print(l)
-                        flash(f"{l}")
-                        data=None
-                        render_template('uploaded_data.html', data=data, unique=False, dynamic_calculations=None)
                     
-                    else:
-                        """
-                        Data is correct format
-                        Load as JSON and report to table
-                        If the imported data is all same patient (on basis of unique birth_date),
-                        offer the opportunity to chart it, calculate velocity and acceleration of most recent parameters
-                        """
+                except ValueError as e:
+                    
+                    """
+                    Error handler - uploaded sheet is incompatible: missing essential data
+                    """
+                    print(e)
+                    flash(f"{e}")
+                    data=None
+                    render_template('uploaded_data.html', data=data, unique_child=False, dynamic_calculations=None)
 
-                        #convert dataframe to JSON
-                        data = json.loads(data_frame)
+                except LookupError as l:
+                    
+                    """
+                    Error handler - uploaded sheet is incompatible: headings are missing or too many or misspelled
+                    """
 
-                        """
-                        creates UK date strings from ISO8601
-                        """
-                        for i in data:
-                            if(i['birth_date']):
-                                i['birth_date'] =  datetime.strftime(datetime.fromtimestamp(i['birth_date']/1000), '%d/%m/%Y')
-                            if(i['observation_date']):
-                                i['observation_date'] =  datetime.strftime(datetime.fromtimestamp(i['observation_date']/1000), '%d/%m/%Y')
-                            if(i['estimated_date_delivery']): 
-                                i['estimated_date_delivery'] =  datetime.strftime(datetime.fromtimestamp(i['estimated_date_delivery']/1000), '%d/%m/%Y')
-                        
-                        # store the JSON in global variable for conversion back to excel format for download if requested
-                        requested_data = data
-
-                        # data is unique patient, calculate velocity
-                        # data come from a table and need converting to Measurement class
-                        formatted_child_data = controllers.prepare_data_as_array_of_measurement_objects(requested_data)
-                        dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
-                        
-                        # if unique data(single child, not multiple children) store in session for access by chart if requested
-                        session['results'] = requested_data
-                        session['serial_data'] = True
+                    data=None
+                    print(l)
+                    flash(f"{l}")
+                    data=None
+                    render_template('uploaded_data.html', data=data, unique_child=False, dynamic_calculations=None)
                 
-            return render_template('uploaded_data.html', data=data, unique=child_data['unique'], dynamic_calculations = dynamic_calculations) #unique is a flag to indicate if unique child or multiple children
-        
-        if id=='get_excel': ##broken needs fix - file deleted so can't download
-            excel_file = controllers.download_excel(requested_data)
-            temp_directory = Path.cwd().joinpath("static").joinpath('uploaded_data').joinpath('temp')
-            return send_from_directory(temp_directory, filename='output.xlsx', as_attachment=True)
+                else:
+                    """
+                    Data is correct format
+                    Load as JSON and report to table
+                    If the imported data is all same patient (on basis of unique birth_date),
+                    offer the opportunity to chart it, calculate velocity and acceleration of most recent parameters
+                    """
+                    #serialise dataframe as JSON
+                    data = json.loads(data_frame)
+                    
+                    #pass data to the api for calculation
+                    payload = {
+                        "uploaded_data": json.dumps(data)
+                    }
 
 
+                    data = requests.get(f"{API_BASEURL}/api/v1/json/serial_data_calculations", params=payload)
+                    
+                    # store the response as JSON in global variable for conversion back to excel format for download if requested
+                    
+                    requested_data=data.json()
+                    
+                    # session["results"] = requested_data
+                    
+                    # TODO - create endpoint to calculate velocity +/- correlated weight centiles
+                    # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
+                    
+                    return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
+            else:
+                #TODO this is the example sheet - download and return the data
+                return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
+                            
+            # return render_template('uploaded_data.html', data=data, unique_child=unique_child, dynamic_calculations = dynamic_calculations)
+            # if id=='get_excel': 
+            #     
+    elif id=='download':
+        ## broken needs fix - file deleted so can't download
+        download_excel.save_as_excel(requested_data)
+        temp_directory = Path.cwd().joinpath("static").joinpath('uploaded_data')
+        send_from_directory(directory=temp_directory, filename='output.xlsx', as_attachment=True)
+        file_path = temp_directory.joinpath('output.xlsx')
+        # remove(file_path)
+        return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
 
 if __name__ == '__main__':
     app.run()
