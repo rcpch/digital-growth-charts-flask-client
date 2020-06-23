@@ -82,7 +82,7 @@ def home():
 
             # flag to differentiate between individual plot and serial data plot
             # session['serial_data'] = "false"
-            return redirect(url_for('results', id='table', unique_child="false"))
+            return redirect(url_for('results', id='table', unique_child="false", data=response.json()))
 
         # form not validated. Need flash warning here
         return render_template('measurement_form.html', form = form)
@@ -99,7 +99,7 @@ def client_references():
 
 
 # RESULTS
-@app.route("/results/<id>/<unique_child>", methods=['GET', 'POST'])
+@app.route("/results/<id>/<unique_child>", methods=['GET'])
 def results(id, unique_child):
     results = session.get('results')
 
@@ -110,15 +110,16 @@ def results(id, unique_child):
 
 
 # CHART
-@app.route("/chart/<unique_child>", methods=['GET'])
-def chart(unique_child):
-    results = session.get('results')
+@app.route("/chart/<unique_child>/<data>", methods=['GET'])
+def chart(unique_child, data):
+
+    results = eval(data) # deserialised from string when passed from template
+    print(results)
     payload = {
-        "results": json.dumps(results), #serialised as json
+        "results": json.dumps(results),
         "unique_child": unique_child
     }
-    
-    data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload)
+    data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
     return render_template('chart.html', data=data.json())
 
 
@@ -210,10 +211,7 @@ def uploaded_data(id):
                     data = requests.get(f"{API_BASEURL}/api/v1/json/serial_data_calculations", params=payload)
                     
                     # store the response as JSON in global variable for conversion back to excel format for download if requested
-                    
                     requested_data=data.json()
-                    
-                    # session["results"] = requested_data
                     
                     # TODO - create endpoint to calculate velocity +/- correlated weight centiles
                     # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
