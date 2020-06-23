@@ -54,10 +54,7 @@ def fictional_child():
         f'{API_BASEURL}/api/v1/json/fictionalchild',
         params = payload
     )
-    # store the results in a session for access by tables and charts later
-    session['results'] = data
-    # flag to differentiate between individual plot and serial data plot
-    session['serial_data'] = True
+    
     return render_template('fictional_data.html', data=data)
 
 
@@ -120,7 +117,6 @@ def results(id, unique_child):
 def chart(unique_child, data):
 
     results = eval(data) # deserialised from string when passed from template
-    print(results)
     payload = {
         "results": json.dumps(results),
         "unique_child": unique_child
