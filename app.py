@@ -80,17 +80,14 @@ def home():
                 params=payload
             )
 
-            # store the results in a session for access by tables and charts later
-            session['results'] = response.json()
-
-            # flag to differentiate between individual plot and serial data plot
-            # session['serial_data'] = "false"
-            return redirect(url_for('results', id='table', unique_child="false", data=response.json()))
+            # serialize results before passing to test_results table
+            data = json.dumps(response.json())
+            
+            return redirect(url_for('results', id='table', unique_child="false", data=data))
 
         # form not validated. Need flash warning here
         return render_template('measurement_form.html', form = form)
     else:
-        # controllers.temp_test_functions.tim_tests_preterm()
         return render_template('measurement_form.html', form = form)
 
 
@@ -102,10 +99,10 @@ def client_references():
 
 
 # RESULTS
-@app.route("/results/<id>/<unique_child>", methods=['GET'])
-def results(id, unique_child):
-    results = session.get('results')
-
+@app.route("/results/<id>/<unique_child>/<data>", methods=['GET'])
+def results(id, unique_child, data):
+    # deserialize json data before pass to test_results template
+    results=json.loads(data)
     if id == 'table':
         return render_template('test_results.html', result=results, unique_child=unique_child)
     if id == 'chart':
