@@ -67,9 +67,9 @@ def home():
             payload = {
                 'birth_date': form.birth_date.data,
                 'observation_date': form.obs_date.data,
-                'height_in_metres': float(form.height.data),
+                'height_in_cm': float(form.height.data),
                 'weight_in_kg': float(form.weight.data),
-                'occipitofrontal_circ_in_cm': float(form.ofc.data),
+                'head_circ_in_cm': float(form.ofc.data),
                 'sex': str(form.sex.data),
                 'gestation_weeks': int(form.gestation_weeks.data),
                 'gestation_days': int(form.gestation_days.data)
