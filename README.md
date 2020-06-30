@@ -28,6 +28,7 @@ These instructions assume you are also running the API application on the same m
 `$ export GROWTH_API_BASEURL=http://localhost:5000`  
 * Run Flask on port 5001  
 `$ flask run -h localhost -p 5001`  
+* All of that in a single line command: `export FLASK_ENV=development;export FLASK_APP=app.py;export GROWTH_API_BASEURL=http://localhost:5000;flask run -h localhost -p 5001`
 
 ## Open Source License
 
