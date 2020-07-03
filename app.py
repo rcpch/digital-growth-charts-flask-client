@@ -79,11 +79,11 @@ def home():
                 f'{API_BASEURL}/api/v1/json/calculations',
                 params=payload
             )
-
+            
             # serialize results before passing to test_results table
             data = json.dumps(response.json())
             
-            return redirect(url_for('results', id='table', unique_child="false", data=data))
+            return redirect(url_for('results', id='table', unique_child="true", data=data))
 
         # form not validated. Need flash warning here
         return render_template('measurement_form.html', form = form)
@@ -101,25 +101,37 @@ def client_references():
 # RESULTS
 @app.route("/results/<id>/<unique_child>/<data>", methods=['GET'])
 def results(id, unique_child, data):
-    # deserialize json data before pass to test_results template
-    results=json.loads(data)
+
+    # deserialize table json data before pass to test_results template
+    table_results=json.loads(data)
+
+    #send results to chart api if unique child
+    if unique_child=='true':
+        payload = {
+            "results": json.dumps(table_results),
+            "unique_child": unique_child
+        }
+        chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
+
+        # print(chart_data.json())
+
     if id == 'table':
-        return render_template('test_results.html', result=results, unique_child=unique_child)
+        return render_template('test_results.html', table_result=table_results, chart_results=chart_data.json(), unique_child=unique_child)
     if id == 'chart':
         return render_template('chart.html', data=results, unique_child=unique_child)
 
 
 # CHART
-@app.route("/chart/<unique_child>/<data>", methods=['GET'])
-def chart(unique_child, data):
+# @app.route("/chart/<unique_child>/<data>", methods=['GET'])
+# def chart(unique_child, data):
 
-    results = eval(data) # deserialised from string when passed from template
-    payload = {
-        "results": json.dumps(results),
-        "unique_child": unique_child
-    }
-    data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
-    return render_template('chart.html', data=data.json())
+#     results = eval(data) # deserialised from string when passed from template
+#     payload = {
+#         "results": json.dumps(results),
+#         "unique_child": unique_child
+#     }
+#     data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
+#     return render_template('chart.html', data=data.json())
 
 
 @app.route("/instructions", methods=['GET'])

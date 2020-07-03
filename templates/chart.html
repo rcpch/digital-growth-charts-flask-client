@@ -29,7 +29,7 @@
       var max_ticks = 0;
       var measurements = ['height', 'weight', 'bmi', 'ofc'];
 
-      var results = JSON.parse('{{data|tojson|safe}}')
+      var results = JSON.parse('{{chart_results|tojson|safe}}')
       
       if (results.sex == 'male') {
         sex_color = boy;
