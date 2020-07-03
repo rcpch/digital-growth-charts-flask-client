@@ -81,9 +81,16 @@ def home():
             )
             
             # serialize results before passing to test_results table
-            data = json.dumps(response.json())
+            table_results = response.json()
+
+            ## results are on a single child and can be charted. Request chart data from api
+            payload = {
+                "results": json.dumps(table_results),
+                "unique_child": "true"
+            }
+            chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
             
-            return redirect(url_for('results', id='table', unique_child="true", data=data))
+            return render_template('test_results.html', table_result=table_results, chart_results=chart_data.json(), unique_child="true")
 
         # form not validated. Need flash warning here
         return render_template('measurement_form.html', form = form)
@@ -99,24 +106,24 @@ def client_references():
 
 
 # RESULTS
-@app.route("/results/<id>/<unique_child>/<data>", methods=['GET'])
-def results(id, unique_child, data):
+# @app.route("/results/<id>/<unique_child>/<data>", methods=['GET'])
+# def results(id, unique_child, data):
 
-    # deserialize table json data before pass to test_results template
-    table_results=json.loads(data)
+#     # deserialize table json data before pass to test_results template
+#     # table_results=json.loads(data)
 
-    #send results to chart api if unique child
-    if unique_child=='true':
-        payload = {
-            "results": json.dumps(table_results),
-            "unique_child": unique_child
-        }
-        chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
+#     #send results to chart api if unique child
+#     if unique_child=='true':
+#         payload = {
+#             "results": json.dumps(table_results),
+#             "unique_child": unique_child
+#         }
+#         chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
 
-    if id == 'table':
-        return render_template('test_results.html', table_result=table_results, chart_results=chart_data.json(), unique_child=unique_child)
-    if id == 'chart':
-        return render_template('chart.html', data=results, unique_child=unique_child)
+#     if id == 'table':
+#         return render_template('test_results.html', table_result=table_results, chart_results=chart_data.json(), unique_child=unique_child)
+#     if id == 'chart':
+#         return render_template('chart.html', data=results, unique_child=unique_child)
 
 
 # CHART
