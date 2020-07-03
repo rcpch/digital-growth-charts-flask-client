@@ -89,8 +89,13 @@ def home():
                 "unique_child": "true"
             }
             
-            chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
-            return render_template('test_results.html', table_result=table_results, chart_results=chart_data.json(), unique_child="true")
+            try:
+                chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload).json()
+            except ValueError as error:
+                chart_data = None
+                print(error)
+                
+            return render_template('test_results.html', table_result=table_results, chart_results=chart_data, unique_child="true")
 
         # form not validated. Need flash warning here
         return render_template('measurement_form.html', form = form)
