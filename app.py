@@ -113,8 +113,6 @@ def results(id, unique_child, data):
         }
         chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
 
-        # print(chart_data.json())
-
     if id == 'table':
         return render_template('test_results.html', table_result=table_results, chart_results=chart_data.json(), unique_child=unique_child)
     if id == 'chart':
@@ -218,7 +216,7 @@ def uploaded_data(id):
                         "uploaded_data": json.dumps(data)
                     }
 
-
+                    # calculate the uploaded data sds and centiles.
                     data = requests.get(f"{API_BASEURL}/api/v1/json/serial_data_calculations", params=payload)
                     
                     # store the response as JSON in global variable for conversion back to excel format for download if requested
@@ -226,11 +224,22 @@ def uploaded_data(id):
                     
                     # TODO - create endpoint to calculate velocity +/- correlated weight centiles
                     # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
+
+                    # if unique_child (ie data only from one child and not multiple children), these data can be plotted
+                    # make a second call to the api for the growth chart data
+                    if unique_child=='true':
+                        payload = {
+                            "results": json.dumps(requested_data),
+                            "unique_child": unique_child
+                        }
+                        chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
+                    else: 
+                        chart_data = None
                     
-                    return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
+                    return render_template('uploaded_data.html', table_data=requested_data, chart_results=chart_data.json(), unique_child=unique_child)
             else:
                 #TODO this is the example sheet - download and return the data
-                return render_template('uploaded_data.html', data=requested_data, unique_child=unique_child)
+                return render_template('uploaded_data.html', data=requested_data, chart_data=None, unique_child=unique_child)
                             
             # return render_template('uploaded_data.html', data=data, unique_child=unique_child, dynamic_calculations = dynamic_calculations)
             # if id=='get_excel': 
