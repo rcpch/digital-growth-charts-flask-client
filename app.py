@@ -88,8 +88,8 @@ def home():
                 "results": json.dumps(table_results),
                 "unique_child": "true"
             }
-            chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
             
+            chart_data = requests.get(f'{API_BASEURL}/api/v1/json/chart_data', params=payload )
             return render_template('test_results.html', table_result=table_results, chart_results=chart_data.json(), unique_child="true")
 
         # form not validated. Need flash warning here
