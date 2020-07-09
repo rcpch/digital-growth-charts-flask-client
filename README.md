@@ -30,6 +30,29 @@ These instructions assume you are also running the API application on the same m
 `$ flask run -h localhost -p 5001`  
 * All of that in a single line command: `export FLASK_ENV=development;export FLASK_APP=app.py;export GROWTH_API_BASEURL=http://localhost:5000;flask run -h localhost -p 5001`
 
+## Endpoints
+- `/` This endpoint accepts a GET request and returns age, centile and SDS calculations of children's growth data. A typical response is shown below in [Arguments](#Arguments). Note that growth reference data **do not** exist to calculate SDS or centiles for:
+1. Height/Length below 25 weeks gestation
+2. BMI below 2 weeks of age (post 40 weeks)
+3. OFC (occipitofrontal circumference) above 17y in girls and >18y in boys.
+In these circumstances, `NoneType` is returned.
+
+- `/results/table` : Reports anthropometric data entered via the webform with calculated values (ages/SDS and centile values with clinical guidance) as a table.
+
+- `/results/chart` : Plots data entered via the webform, or uploaded in .xlsx format, as growth charts. Charts have capability to zoom in and out.
+
+- `/chart_data` : a JSON dump of the centile chart data
+
+- `/import` : accepts a POST request to upload an excel spreadsheet of mixed patient data (for example for research purposes), or serial growth data over time for individual patients. The upload format for each is different and prescribed. Mandatory column names are: 'birth_date', 'observation_date', 'gestation_weeks','gestation_days', 'sex', 'measurement_type', 'measurement_value'. These are case sensitive. measurement_type must be lower case and one of 'height', 'weight', 'ofc', 'bmi'. This must be anonymised as is in the public domain. Any columns other than those prescribed will be stripped and discarded. No data is retained on the server.
+
+- `/uploaded_data/example` : this is a sample spreadsheet of fictional data for users to try
+
+- `/uploaded_data/excel_spreadsheet` : redirected here once an excel spreadsheet of data has been uploaded.
+
+- `/references` : currently is a hardcoded list (stored as JSON) of national and international growth references (not the datasets themselves), with literature references and authorship, date of publication. The intention is for this to be stored in a database and available opensource (with some governance) for users to update and use. In future it is intended to be a national standard for growth reference publication and provide guidance on growth reference development.
+
+- `/instructions` : currently renders this readme.md. In future is intended to be a resource to help users access the API, as well as details of the API licence, rules of use and disclaimers.
+
 ## Open Source License
 
 This work is Copyright ⓒ2020 The Royal College of Paediatrics and Child Health, and is released under the MIT Open Source License  
