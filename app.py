@@ -2,7 +2,7 @@
 from datetime import datetime
 from os import path, listdir, remove, environ
 from measurement_request import MeasurementForm, FictionalChildForm
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session, abort
 from flask_cors import CORS
 import markdown
 import requests
@@ -247,7 +247,6 @@ def uploaded_data(id):
                         chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
                     else: 
                         chart_data = None
-                    
                     return render_template("uploaded_data.html", table_data=requested_data, chart_results=chart_data.json(), unique_child=unique_child)
             else:
                 #TODO this is the example sheet - download and return the data
@@ -258,12 +257,16 @@ def uploaded_data(id):
             #     
     elif id=="download":
         ## broken needs fix - file deleted so can"t download
-        download_excel.save_as_excel(requested_data)
+    
+        download_excel.save_as_excel(json.dumps(requested_data))
         temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
-        send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True)
         file_path = temp_directory.joinpath("output.xlsx")
-        # remove(file_path)
-        return render_template("uploaded_data.html", data=requested_data, unique_child=unique_child)
+        try:
+            return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            remove(file_path)
+            return render_template("uploaded_data.html", table_data=requested_data, chart_results=None, unique_child=unique_child)
+        except FileNotFoundError:
+            abort(404)
 
 if __name__ == "__main__":
     app.run()
