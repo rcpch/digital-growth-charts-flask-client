@@ -89,12 +89,14 @@ def home():
                 "unique_child": "true"
             }
 
+            print(payload)
+
             try:
                 chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload)
             except ValueError as error:
                 chart_data = None
                 print(error)
-                
+
             return render_template("test_results.html", table_result=table_results, chart_results=chart_data.json(), unique_child="true")
 
         # form not validated. Need flash warning here
@@ -108,40 +110,6 @@ def home():
 def client_references():
     response = requests.get(f"{API_BASEURL}/api/v1/json/references") 
     return render_template("references.html", data=response.json() )
-
-
-# RESULTS
-# @app.route("/results/<id>/<unique_child>/<data>", methods=["GET"])
-# def results(id, unique_child, data):
-
-#     # deserialize table json data before pass to test_results template
-#     # table_results=json.loads(data)
-
-#     #send results to chart api if unique child
-#     if unique_child=="true":
-#         payload = {
-#             "results": json.dumps(table_results),
-#             "unique_child": unique_child
-#         }
-#         chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
-
-#     if id == "table":
-#         return render_template("test_results.html", table_result=table_results, chart_results=chart_data.json(), unique_child=unique_child)
-#     if id == "chart":
-#         return render_template("chart.html", data=results, unique_child=unique_child)
-
-
-# CHART
-# @app.route("/chart/<unique_child>/<data>", methods=["GET"])
-# def chart(unique_child, data):
-
-#     results = eval(data) # deserialised from string when passed from template
-#     payload = {
-#         "results": json.dumps(results),
-#         "unique_child": unique_child
-#     }
-#     data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
-#     return render_template("chart.html", data=data.json())
 
 
 @app.route("/instructions", methods=["GET"])
@@ -251,10 +219,7 @@ def uploaded_data(id):
             else:
                 #TODO this is the example sheet - download and return the data
                 return render_template("uploaded_data.html", data=requested_data, chart_data=None, unique_child=unique_child)
-                            
-            # return render_template("uploaded_data.html", data=data, unique_child=unique_child, dynamic_calculations = dynamic_calculations)
-            # if id=="get_excel": 
-            #     
+
     elif id=="download":
         @after_this_request
         def remove_file(filepath):
