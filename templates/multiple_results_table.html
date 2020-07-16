@@ -26,18 +26,18 @@
               <td>{{ m.birth_data.gestation_weeks}}</td>
               <td>{{ m.birth_data.gestation_days }}</td>
               <td>{{ m.birth_data.estimated_date_delivery }}</td>
-              <td>{{ m.measurement_dates.chronological_decimal_age|round(1) }}</td>
-              <td>{{ m.measurement_dates.corrected_decimal_age|round(1) }}</td>
+              <td>{{ m.measurement_dates.chronological_decimal_age|round(4) }}</td>
+              <td>{{ m.measurement_dates.corrected_decimal_age|round(4) }}</td>
               <td>{{ m.birth_data.sex }}</td>
               <td>{{ m.child_observation_value.measurement_type }}</td>
               <td>{{ m.child_observation_value.measurement_value }}</td>
-              <td>{{ m.measurement_calculated_values.sds|round(2) }}</td>
+              <td>{{ m.measurement_calculated_values.sds|round(4) }}</td>
               <td>{{ m.measurement_calculated_values.centile|round|int}}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        <button onclick="window.location.href='{{url_for('uploaded_data', id='download', data=data, unique_child=unique_child)}}'" class="green ui button" type="submit">Download .XLSX</button>
+        <button onclick="window.location.href='{{url_for('uploaded_data', id='download', data=data, unique_child=unique_child)}}'" class="green ui button" type="submit" method='post'>Download .XLSX</button>
         {% if unique_child %}
           <!-- <div class="ui green button" id='velocityButton'>Dynamic Calculations</div> -->
           <div class="ui modal">

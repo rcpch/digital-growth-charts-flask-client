@@ -89,8 +89,6 @@ def home():
                 "unique_child": "true"
             }
 
-            print(payload)
-
             try:
                 chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload)
             except ValueError as error:
@@ -133,13 +131,16 @@ def import_growth_data():
         return render_template("import.html", form=form)
 
 
-# UPLOAD EXCEL FILE?
-# TODO: Definitely needs to be deprecated in favour of a PR model of submitting reference data
+
+# This endpoint is to upload an excel spreadsheet of a child or children's growth data. Data persisted transiently
+# while it is imported as a dataframe into PANDAS and then deleted. The code for this currently is in a client side controller.
+# TODO #4 Move the converation from EXCEL to PANDAS functions from client_controller to the api.
 @app.route("/uploaded_data/<id>", methods=["GET", "POST"])
 ## excel now uploaded. Needs validating
 def uploaded_data(id):
     global requested_data
     global unique_child
+    print(f'i hit this {id}')
     if id=="sheet":
         # get file from static directory and check if meets criteria and then set flag unique_child
         static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
@@ -207,11 +208,13 @@ def uploaded_data(id):
 
                     # if unique_child (ie data only from one child and not multiple children), these data can be plotted
                     # make a second call to the api for the growth chart data
+
                     if unique_child=="true":
                         payload = {
                             "results": json.dumps(requested_data),
                             "unique_child": unique_child
                         }
+
                         chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
                     else: 
                         chart_data = None
@@ -221,15 +224,16 @@ def uploaded_data(id):
                 return render_template("uploaded_data.html", data=requested_data, chart_data=None, unique_child=unique_child)
 
     elif id=="download":
-        @after_this_request
-        def remove_file(filepath):
-            remove(file_path)
-            return render_template("uploaded_data.html", table_data=requested_data, chart_results=None, unique_child=unique_child)
-    
         download_excel.save_as_excel(json.dumps(requested_data))
         temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
         file_path = temp_directory.joinpath("output.xlsx")
+        print("I am downloading now....")
         return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        @after_this_request
+        def remove_file(filepath):
+            print('something is being downloaded - may be this is called first')
+            remove(file_path)
+            return render_template("uploaded_data.html", table_data=requested_data, chart_results=None, unique_child=unique_child)
         
 
 if __name__ == "__main__":
