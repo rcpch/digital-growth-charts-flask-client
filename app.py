@@ -140,7 +140,6 @@ def import_growth_data():
 def uploaded_data(id):
     global requested_data
     global unique_child
-    print(f'i hit this {id}')
     if id=="sheet":
         # get file from static directory and check if meets criteria and then set flag unique_child
         static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
@@ -224,16 +223,16 @@ def uploaded_data(id):
                 return render_template("uploaded_data.html", data=requested_data, chart_data=None, unique_child=unique_child)
 
     elif id=="download":
-        download_excel.save_as_excel(json.dumps(requested_data))
-        temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
-        file_path = temp_directory.joinpath("output.xlsx")
-        print("I am downloading now....")
-        return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         @after_this_request
         def remove_file(filepath):
             print('something is being downloaded - may be this is called first')
             remove(file_path)
             return render_template("uploaded_data.html", table_data=requested_data, chart_results=None, unique_child=unique_child)
+        download_excel.save_as_excel(json.dumps(requested_data))
+        temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
+        file_path = temp_directory.joinpath("output.xlsx")
+        print("I am downloading now....")
+        return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         
 
 if __name__ == "__main__":
