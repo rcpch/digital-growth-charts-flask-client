@@ -80,7 +80,7 @@ def home():
                 f"{API_BASEURL}/api/v1/json/calculations",
                 params=payload
             )
-            print(response.json) # to debug 500 error in client
+            print(response.json()) # to debug 500 error in client
             
             # serialize results before passing to test_results table
             table_results = response.json()
