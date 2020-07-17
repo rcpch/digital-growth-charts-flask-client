@@ -233,7 +233,6 @@ def uploaded_data(id):
         file_path = temp_directory.joinpath("output.xlsx")
         print("I am downloading now....")
         return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        
 
 if __name__ == "__main__":
     app.run()
