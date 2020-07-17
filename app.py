@@ -74,12 +74,13 @@ def home():
                 "gestation_weeks": int(form.gestation_weeks.data),
                 "gestation_days": int(form.gestation_days.data)
             }
-            print(f"{API_BASEURL}/api/v1/json/calculations") # to debug failure of response
+            print(f"{API_BASEURL}/api/v1/json/calculations") # to debug 500 error in client
             # collect user form entries and perform date and SDS/Centile calculations
             response = requests.get(
                 f"{API_BASEURL}/api/v1/json/calculations",
                 params=payload
             )
+            print(response.json) # to debug 500 error in client
             
             # serialize results before passing to test_results table
             table_results = response.json()
