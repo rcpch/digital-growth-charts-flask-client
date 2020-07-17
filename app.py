@@ -74,6 +74,7 @@ def home():
                 "gestation_weeks": int(form.gestation_weeks.data),
                 "gestation_days": int(form.gestation_days.data)
             }
+            print(f"{API_BASEURL}/api/v1/json/calculations") # to debug failure of response
             # collect user form entries and perform date and SDS/Centile calculations
             response = requests.get(
                 f"{API_BASEURL}/api/v1/json/calculations",
