@@ -2,7 +2,7 @@
 from datetime import datetime
 from os import path, listdir, remove, environ
 from measurement_request import MeasurementForm, FictionalChildForm
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session, abort, after_this_request
 from flask_cors import CORS
 import markdown
 import requests
@@ -94,7 +94,7 @@ def home():
             except ValueError as error:
                 chart_data = None
                 print(error)
-                
+
             return render_template("test_results.html", table_result=table_results, chart_results=chart_data.json(), unique_child="true")
 
         # form not validated. Need flash warning here
@@ -108,40 +108,6 @@ def home():
 def client_references():
     response = requests.get(f"{API_BASEURL}/api/v1/json/references") 
     return render_template("references.html", data=response.json() )
-
-
-# RESULTS
-# @app.route("/results/<id>/<unique_child>/<data>", methods=["GET"])
-# def results(id, unique_child, data):
-
-#     # deserialize table json data before pass to test_results template
-#     # table_results=json.loads(data)
-
-#     #send results to chart api if unique child
-#     if unique_child=="true":
-#         payload = {
-#             "results": json.dumps(table_results),
-#             "unique_child": unique_child
-#         }
-#         chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
-
-#     if id == "table":
-#         return render_template("test_results.html", table_result=table_results, chart_results=chart_data.json(), unique_child=unique_child)
-#     if id == "chart":
-#         return render_template("chart.html", data=results, unique_child=unique_child)
-
-
-# CHART
-# @app.route("/chart/<unique_child>/<data>", methods=["GET"])
-# def chart(unique_child, data):
-
-#     results = eval(data) # deserialised from string when passed from template
-#     payload = {
-#         "results": json.dumps(results),
-#         "unique_child": unique_child
-#     }
-#     data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
-#     return render_template("chart.html", data=data.json())
 
 
 @app.route("/instructions", methods=["GET"])
@@ -165,8 +131,10 @@ def import_growth_data():
         return render_template("import.html", form=form)
 
 
-# UPLOAD EXCEL FILE?
-# TODO: Definitely needs to be deprecated in favour of a PR model of submitting reference data
+
+# This endpoint is to upload an excel spreadsheet of a child or children's growth data. Data persisted transiently
+# while it is imported as a dataframe into PANDAS and then deleted. The code for this currently is in a client side controller.
+# TODO #4 Move the converation from EXCEL to PANDAS functions from client_controller to the api.
 @app.route("/uploaded_data/<id>", methods=["GET", "POST"])
 ## excel now uploaded. Needs validating
 def uploaded_data(id):
@@ -239,31 +207,33 @@ def uploaded_data(id):
 
                     # if unique_child (ie data only from one child and not multiple children), these data can be plotted
                     # make a second call to the api for the growth chart data
+
                     if unique_child=="true":
                         payload = {
                             "results": json.dumps(requested_data),
                             "unique_child": unique_child
                         }
+
                         chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
                     else: 
                         chart_data = None
-                    
                     return render_template("uploaded_data.html", table_data=requested_data, chart_results=chart_data.json(), unique_child=unique_child)
             else:
                 #TODO this is the example sheet - download and return the data
                 return render_template("uploaded_data.html", data=requested_data, chart_data=None, unique_child=unique_child)
-                            
-            # return render_template("uploaded_data.html", data=data, unique_child=unique_child, dynamic_calculations = dynamic_calculations)
-            # if id=="get_excel": 
-            #     
+
     elif id=="download":
-        ## broken needs fix - file deleted so can"t download
-        download_excel.save_as_excel(requested_data)
+        @after_this_request
+        def remove_file(filepath):
+            print('something is being downloaded - may be this is called first')
+            remove(file_path)
+            return render_template("uploaded_data.html", table_data=requested_data, chart_results=None, unique_child=unique_child)
+        download_excel.save_as_excel(json.dumps(requested_data))
         temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
-        send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True)
         file_path = temp_directory.joinpath("output.xlsx")
-        # remove(file_path)
-        return render_template("uploaded_data.html", data=requested_data, unique_child=unique_child)
+        print("I am downloading now....")
+        return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        
 
 if __name__ == "__main__":
     app.run()
