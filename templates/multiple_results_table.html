@@ -12,7 +12,7 @@
             <th>chronological_decimal_age</th>
             <th>corrected_decimal_age</th>
             <th>sex</th>
-            <th>measurement_type</th>
+            <th>measurement_method</th>
             <th>measurement_value</th>
             <th>sds</th>
             <th>centile</th>              
@@ -29,7 +29,7 @@
               <td>{{ m.measurement_dates.chronological_decimal_age|round(4) }}</td>
               <td>{{ m.measurement_dates.corrected_decimal_age|round(4) }}</td>
               <td>{{ m.birth_data.sex }}</td>
-              <td>{{ m.child_observation_value.measurement_type }}</td>
+              <td>{{ m.child_observation_value.measurement_method }}</td>
               <td>{{ m.child_observation_value.measurement_value }}</td>
               <td>{{ m.measurement_calculated_values.sds|round(4) }}</td>
               <td>{{ m.measurement_calculated_values.centile|round|int}}</td>

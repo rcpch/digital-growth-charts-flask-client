@@ -6,6 +6,8 @@ from datetime import date
 MEASUREMENT_TYPES = [('height', 'Height (cm)'), ('weight', 'Weight (kg)'), ('bmi', 'BMI (kg/m2)'), ('ofc', 'Head Circumference (cm)')]
 INTERVAL_TYPES = [('days', 'Days'), ('weeks', 'Weeks'), ('months', 'Months'), ('years', 'Years')]
 
+## TODO #5 refactor measurement_type to measurement_method
+
 class MeasurementForm(FlaskForm):
     birth_date = DateField('Date of Birth', validators=[DataRequired()])
     obs_date = DateField('Observation Date', validators=[DataRequired()])

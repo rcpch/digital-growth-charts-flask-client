@@ -43,7 +43,7 @@ In these circumstances, `NoneType` is returned.
 
 - `/chart_data` : a JSON dump of the centile chart data
 
-- `/import` : accepts a POST request to upload an excel spreadsheet of mixed patient data (for example for research purposes), or serial growth data over time for individual patients. The upload format for each is different and prescribed. Mandatory column names are: 'birth_date', 'observation_date', 'gestation_weeks','gestation_days', 'sex', 'measurement_type', 'measurement_value'. These are case sensitive. measurement_type must be lower case and one of 'height', 'weight', 'ofc', 'bmi'. This must be anonymised as is in the public domain. Any columns other than those prescribed will be stripped and discarded. No data is retained on the server.
+- `/import` : accepts a POST request to upload an excel spreadsheet of mixed patient data (for example for research purposes), or serial growth data over time for individual patients. The upload format for each is different and prescribed. Mandatory column names are: 'birth_date', 'observation_date', 'gestation_weeks','gestation_days', 'sex', 'measurement_method', 'measurement_value'. These are case sensitive. 'measurement_method' must be lower case and one of 'height', 'weight', 'ofc', 'bmi'. This must be anonymised as is in the public domain. Any columns other than those prescribed will be stripped and discarded. No data is retained on the server.
 
 - `/uploaded_data/example` : this is a sample spreadsheet of fictional data for users to try
 

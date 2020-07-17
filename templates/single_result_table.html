@@ -228,7 +228,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'height' %}
+                            {% if measurement.child_observation_value.measurement_method == 'height' %}
                                 <td>
                                     {{ measurement.child_observation_value.measurement_value|round(1) }} cm
                                 </td>
@@ -244,7 +244,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                        {% if measurement.child_observation_value.measurement_type == 'height' %}
+                        {% if measurement.child_observation_value.measurement_method == 'height' %}
                             <td>
                                 <div>
                                     {{ measurement.measurement_calculated_values.sds|round(2) }}
@@ -262,7 +262,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'height' %}
+                            {% if measurement.child_observation_value.measurement_method == 'height' %}
                                 <td>
                                     <div class="ui blue header">
                                         {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
@@ -291,7 +291,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'weight' %}
+                            {% if measurement.child_observation_value.measurement_method == 'weight' %}
                                 <td>
                                     {{ measurement.child_observation_value.measurement_value|round(2) }} kg
                                 </td>
@@ -307,7 +307,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'weight' %}
+                            {% if measurement.child_observation_value.measurement_method == 'weight' %}
                                 <td>
                                     <div >
                                         {{ measurement.measurement_calculated_values.sds|round(2) }}
@@ -325,7 +325,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result  %}
-                            {% if measurement.child_observation_value.measurement_type == 'weight' %}
+                            {% if measurement.child_observation_value.measurement_method == 'weight' %}
                                 <td>
                                     <div class="ui blue header">
                                         {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
@@ -354,7 +354,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result  %}
-                            {% if measurement.child_observation_value.measurement_type == 'bmi' %}
+                            {% if measurement.child_observation_value.measurement_method == 'bmi' %}
                                 <td>
                                     {{ measurement.child_observation_value.measurement_value|round(1) }} kg/m&#178;
                                 </td>
@@ -370,7 +370,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'bmi' %}
+                            {% if measurement.child_observation_value.measurement_method == 'bmi' %}
                                 <td>
                                     <div>
                                         {{ measurement.measurement_calculated_values.sds|round(2) }}
@@ -388,7 +388,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'bmi' %}
+                            {% if measurement.child_observation_value.measurement_method == 'bmi' %}
                                     <td>
                                         <div class="ui blue header">
                                             {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
@@ -420,7 +420,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'ofc' %}
+                            {% if measurement.child_observation_value.measurement_method == 'ofc' %}
                                 <td>
                                     {{ measurement.child_observation_value.measurement_value }} cm
                                 </td>
@@ -436,7 +436,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_type == 'ofc' %}
+                            {% if measurement.child_observation_value.measurement_method == 'ofc' %}
                                 <td>
                                     <div>
                                         {{ measurement.measurement_calculated_values.sds|round(2) }}
@@ -454,7 +454,7 @@
                             </h4>
                         </td>
                         {% for measurement in table_result  %}
-                            {% if measurement.child_observation_value.measurement_type == 'ofc' %}
+                            {% if measurement.child_observation_value.measurement_method == 'ofc' %}
                                 <td>
                                     <div class="ui blue header">
                                         {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}

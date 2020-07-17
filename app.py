@@ -4,6 +4,7 @@ from os import path, listdir, remove, environ
 from measurement_request import MeasurementForm, FictionalChildForm
 from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session, abort, after_this_request
 from flask_cors import CORS
+from flask import Response
 import markdown
 import requests
 import json
@@ -203,6 +204,8 @@ def uploaded_data(id):
                     
                     # store the response as JSON in global variable for conversion back to excel format for download if requested
                     requested_data=data.json()
+
+                    
                     
                     # TODO - create endpoint to calculate velocity +/- correlated weight centiles
                     # dynamic_calculations = controllers.calculate_velocity_acceleration(formatted_child_data)
@@ -217,7 +220,7 @@ def uploaded_data(id):
                         }
 
                         chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload )
-                    else: 
+                    else:
                         chart_data = None
                     return render_template("uploaded_data.html", table_data=requested_data, chart_results=chart_data.json(), unique_child=unique_child)
             else:
@@ -225,16 +228,14 @@ def uploaded_data(id):
                 return render_template("uploaded_data.html", data=requested_data, chart_data=None, unique_child=unique_child)
 
     elif id=="download":
-        @after_this_request
-        def remove_file(filepath):
-            print('something is being downloaded - may be this is called first')
-            remove(file_path)
-            return render_template("uploaded_data.html", table_data=requested_data, chart_results=None, unique_child=unique_child)
         download_excel.save_as_excel(json.dumps(requested_data))
         temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
         file_path = temp_directory.joinpath("output.xlsx")
-        print("I am downloading now....")
         return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        @after_this_request
+        def remove_file(filepath):
+            remove(file_path)
+            return redirect(url_for('home'))
 
 if __name__ == "__main__":
     app.run()
