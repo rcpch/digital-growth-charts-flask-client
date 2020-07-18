@@ -6,7 +6,8 @@ var girl = 'rgba(217, 49, 155, 1.0)';
       var bmi_centiles = []
       var ofc_centiles = []
       var max_ticks = 0;
-      var measurements = ['height', 'weight', 'bmi', 'ofc'];
+      // var measurements = ['height', 'weight', 'bmi', 'ofc'];
+      var measurements = [];
 
       var results = JSON.parse('{{chart_results|tojson|safe}}')
       
@@ -20,17 +21,20 @@ var girl = 'rgba(217, 49, 155, 1.0)';
       // select which centile charts to show
       if(results.child_data.heights.length > 0){
         height_centiles = results.centile_data.height
+        measurements.push('height');
       }
       if(results.child_data.weights.length > 0){
         weight_centiles = results.centile_data.weight
+        measurements.push('weight');
       }  
       if(results.child_data.bmis.length > 0){
         bmi_centiles = results.centile_data.bmi
+        measurements.push('bmi');
       }
       if(results.child_data.ofcs.length > 0){
         ofc_centiles = results.centile_data.ofc
+        measurements.push('ofc');
       }
-      
     
       for (i=0; i<measurements.length; i++){
 
