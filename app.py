@@ -53,7 +53,7 @@ def fictional_child():
     }
     data = requests.get(
         f"{API_BASEURL}/api/v1/json/fictionalchild",
-        params = payload
+        data = payload
     )
     
     return render_template("fictional_data.html", data=data)
@@ -79,7 +79,7 @@ def home():
             # collect user form entries and perform date and SDS/Centile calculations
             response = requests.post(
                 f"{API_BASEURL}/api/v1/json/calculations",
-                params=payload
+                data=payload
             )
             print(response.json()) # to debug 500 error in client
             
