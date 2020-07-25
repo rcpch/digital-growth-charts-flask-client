@@ -75,9 +75,9 @@ def home():
                 "gestation_weeks": int(form.gestation_weeks.data),
                 "gestation_days": int(form.gestation_days.data)
             }
-            print(f"{API_BASEURL}/api/v1/json/calculations") # to debug 500 error in client
+
             # collect user form entries and perform date and SDS/Centile calculations
-            response = requests.get(
+            response = requests.post(
                 f"{API_BASEURL}/api/v1/json/calculations",
                 params=payload
             )
@@ -92,8 +92,12 @@ def home():
                 "unique_child": "true"
             }
 
+            # collect user form entries and perform date and SDS/Centile calculations
             try:
-                chart_data = requests.get(f"{API_BASEURL}/api/v1/json/chart_data", params=payload)
+                chart_data = requests.post(
+                    f"{API_BASEURL}/api/v1/json/chart_data",
+                    data=payload
+                )
             except ValueError as error:
                 chart_data = None
                 print(error)
