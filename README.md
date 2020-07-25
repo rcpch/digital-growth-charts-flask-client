@@ -55,7 +55,7 @@ In these circumstances, `NoneType` is returned.
 
 ## Open Source License
 
-This work is Copyright ⓒ2020 The Royal College of Paediatrics and Child Health, and is released under the MIT Open Source License  
+This work is Copyright ⓒ 2020 The Royal College of Paediatrics and Child Health, and is released under the MIT Open Source License  
 
 ## Contributing
 ### How to contribute
