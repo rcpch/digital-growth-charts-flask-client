@@ -21,6 +21,7 @@ var girl = 'rgba(217, 49, 155, 1.0)';
       // select which centile charts to show
       if(results.child_data.heights.length > 0){
         height_centiles = results.centile_data.height
+        
         measurements.push('height');
       }
       if(results.child_data.weights.length > 0){
@@ -89,7 +90,6 @@ var girl = 'rgba(217, 49, 155, 1.0)';
                     borderDash: [15, 5],
                     pointRadius: 0,
                     lineTension: 0,
-                    cubicInterpolationMode: false
                   },
                   {
                     label: '2nd', /// preterm to term UK90
@@ -551,7 +551,6 @@ var girl = 'rgba(217, 49, 155, 1.0)';
                         type: 'linear',
                         position: 'bottom',
                         ticks: {
-                          min: -0.3,
                           max: 20,
                           stepSize: 0.5,
                           fixedStepSize: 0.5,
