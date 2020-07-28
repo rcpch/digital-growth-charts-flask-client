@@ -1,6 +1,7 @@
 import pandas as pd
 from os import path, listdir, remove
 
+## DEPRECATED - NOW THE FILE IS SENT TO THE API FOR THIS TO HAPPEN
 def import_excel_sheet(file_path: str, can_delete: bool):
 
     unique_child = "false" ## this string flags if uploaded data belong to a single child (common birth_date) or multiple children (different birth_date)
@@ -56,68 +57,3 @@ def import_excel_sheet(file_path: str, can_delete: bool):
             'data': data_frame.to_json(orient='records', date_format='epoch'),
             'unique_child': unique_child
         }
-
-    """
-    ########################################################################
-    The dataframe has been validated so the measurements and dates can be processed.
-    This should all be done server side
-    #######################################################################
-
-    ## check columns data-type correct
-    
-    # data_frame['decimal_age'] = data_frame['decimal_age'].fillna(0).astype(float)
-    
-    # data_frame['estimated_date_delivery']= data_frame['estimated_date_delivery'].astype('datetime64[ns]')
-    
-    
-    ## add the calculated columns (SDS and Centile, corrected and chronological decimal age)
-    data_frame['corrected_decimal_age']=data_frame.apply(lambda row: rcpchgrowth.corrected_decimal_age(row['birth_date'], row['observation_date'], row['gestation_weeks'], row['gestation_days']), axis=1)
-    data_frame['chronological_decimal_age']=data_frame.apply(lambda row: rcpchgrowth.chronological_decimal_age(row['birth_date'], row['observation_date']), axis=1)
-    data_frame['estimated_date_delivery']=data_frame.apply(lambda row: rcpchgrowth.estimated_date_delivery(row['birth_date'], row['gestation_weeks'], row['gestation_days']), axis=1)
-    data_frame['sds']=data_frame.apply(lambda row: sds_if_parameters(row['corrected_decimal_age'], row['measurement_method'], row['measurement_value'], row['sex']), axis=1)
-    data_frame['centile']=data_frame.apply(lambda row: rcpchgrowth.centile(row['sds']), axis=1)
-    data_frame['height'] = data_frame.apply(lambda row: value_for_measurement('height', row['measurement_method'], row['measurement_value']), axis=1)
-    data_frame['weight'] = data_frame.apply(lambda row: value_for_measurement('weight', row['measurement_method'], row['measurement_value']), axis=1)
-    # same_date_data_frame = data_frame[data_frame.duplicated(['birth_date', 'observation_date'], keep=False)]
-    height = 0.0
-    weight = 0.0
-    weight_date = ''
-    height_date = '' 
-    weight_birth_date = ''
-    height_birth_date = ''
-
-    extra_rows = []
-    for index, row in same_date_data_frame.iterrows():
-        if pd.notnull(row['height']):
-            height = row['height']
-            height_date = row['observation_date']
-            height_birth_date = row['birth_date']
-        if pd.notnull(row['weight']):
-            weight = row['weight']
-            weight_date = row['observation_date']
-            weight_birth_date = row['birth_date']
-        if height > 0.0 and weight > 0.0 and height_date == weight_date and height_birth_date == weight_birth_date:
-            bmi = rcpchgrowth.bmi_from_height_weight(height, weight)
-            if row['corrected_decimal_age'] > 0.038329911: 
-                bmi_sds = rcpchgrowth.sds(row['corrected_decimal_age'], 'bmi', bmi, row['sex'])
-                bmi_centile = rcpchgrowth.centile(bmi_sds)
-            else:
-                bmi_sds = None
-                bmi_centile = None
-            new_row = {'birth_date': height_birth_date, 'observation_date': height_date, 'gestation_weeks': row['gestation_weeks'], 'gestation_days': row['gestation_days'], 'estimated_date_delivery': row['estimated_date_delivery'], 'chronological_decimal_age': row['chronological_decimal_age'], 'corrected_decimal_age': row['corrected_decimal_age'], 'sex': row['sex'], 'measurement_method': 'bmi', 'measurement_value': bmi, 'sds': bmi_sds, 'centile': bmi_centile, 'height': None, 'weight': None}
-            extra_rows.append(new_row)
-
-    if len(extra_rows) > 0:
-        data_frame = data_frame.append(extra_rows, ignore_index=True)
-        data_frame = data_frame.drop_duplicates(ignore_index=True)
-        
-
-    if data_frame['birth_date'].nunique() > 1:
-        print('these are not all data from the same patient. They cannot be charted.') #do not chart these values
-        unique = False
-
-    return {
-        'data': data_frame.to_json(orient='records', date_format='epoch'),
-        'unique': unique
-    }
-    """
