@@ -136,11 +136,10 @@ def instructions():
 def import_growth_data():
     form = FictionalChildForm()
     if request.method == "POST":
-        ## can only receive .xls, .xlsx, or .csv files
+        ## can only receive .xls, .xlsx, or .csv files TODO need to chunk files
         file = request.files["file"]
         static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
         file.save(path.join(static_directory, file.filename))
-        # controller_response = chunk_file.chunk_file(file, file_to_save)
         return make_response("ok")
     else:
         return render_template("import.html", form=form)
