@@ -110,6 +110,11 @@ def home():
         # form not validated. Need flash warning here
         return render_template("measurement_form.html", form = form)
     else:
+        ## delete files if still present
+        temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
+        for filename in listdir(temp_directory):
+            if filename:
+                remove(path.join(temp_directory, filename))
         return render_template("measurement_form.html", form = form)
 
 
