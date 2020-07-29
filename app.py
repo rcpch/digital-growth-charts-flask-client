@@ -114,10 +114,10 @@ def home():
         return render_template("measurement_form.html", form = form)
     else:
         ## delete files if still present
-        temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
-        for filename in listdir(temp_directory):
+        # temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
+        for filename in listdir(uploaded_data_folder):
             if filename:
-                remove(path.join(temp_directory, filename))
+                remove(path.join(uploaded_data_folder, filename))
         return render_template("measurement_form.html", form = form)
 
 
@@ -153,11 +153,11 @@ def uploaded_data(id):
     global table_data
     if id=='sheet':
         # get file from store
-        static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
+        # static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
         global static_file
         global static_file_name
-        for file_name in listdir(static_directory):
-            file_path = path.join(static_directory, file_name)
+        for file_name in listdir(uploaded_data_folder):
+            file_path = path.join(uploaded_data_folder, file_name)
             static_file = file_path
             static_file_name = file_name
         files = {'excel_file': (static_file_name, open(static_file, 'rb'))}
