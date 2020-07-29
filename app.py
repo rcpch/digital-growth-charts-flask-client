@@ -26,6 +26,9 @@ app.config["SECRET_KEY"] = "UK_WHO" #not very secret - this will need complicati
 CORS(app)
 Dropzone(app)
 
+assets_folder = path.join(app.root_path, 'static')
+uploaded_data_folder = path.join(assets_folder, 'uploaded_data')
+
 from app import app
 
 """
@@ -138,8 +141,9 @@ def import_growth_data():
     if request.method == "POST":
         ## can only receive .xls, .xlsx, or .csv files TODO need to chunk files
         file = request.files["file"]
-        static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
-        file.save(path.join(static_directory, file.filename))
+        # static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
+        # file.save(path.join(static_directory, file.filename))
+        file.save(path.join(uploaded_data_folder, file.filename))
         return make_response("ok")
     else:
         return render_template("import.html", form=form)
@@ -195,9 +199,9 @@ def uploaded_data(id):
     elif id=="download":
         ## saves table_data json to excel format in static folder then deletes after download
         download_excel.save_as_excel(json.dumps(table_data))
-        temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
-        file_path = temp_directory.joinpath("output.xlsx")
-        return send_from_directory(directory=temp_directory, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        # temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
+        file_path = path.join(uploaded_data_folder, "output.xlsx")
+        return send_from_directory(directory=uploaded_data_folder, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         @after_this_request
         def remove_file(filepath):
             remove(file_path)
