@@ -198,7 +198,7 @@ def uploaded_data(id):
 
     elif id=="download":
         ## saves table_data json to excel format in static folder then deletes after download
-        download_excel.save_as_excel(json.dumps(table_data))
+        download_excel.save_as_excel(json.dumps(table_data), uploaded_data_folder)
         # temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
         file_path = path.join(uploaded_data_folder, "output.xlsx")
         return send_from_directory(directory=uploaded_data_folder, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
