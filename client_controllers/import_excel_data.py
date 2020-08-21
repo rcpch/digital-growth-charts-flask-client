@@ -2,15 +2,14 @@ import pandas as pd
 from os import path, listdir, remove
 
 ## DEPRECATED - NOW THE FILE IS SENT TO THE API FOR THIS TO HAPPEN
-def import_excel_sheet(file_path: str, can_delete: bool):
+def import_excel_sheet(file_path: str):
 
     unique_child = "false" ## this string flags if uploaded data belong to a single child (common birth_date) or multiple children (different birth_date)
     
     data_frame = pd.read_excel(file_path)
     
-    ## delete the file if not dummy_data.xlsx
-    if can_delete:
-        remove(file_path)
+    ## delete the file
+    remove(file_path)
     
     ## check all columns present
     expected_column_names = ['birth_date', 'observation_date', 'gestation_weeks','gestation_days', 'sex', 'measurement_method', 'measurement_value']
