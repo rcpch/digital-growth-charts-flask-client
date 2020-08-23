@@ -7,12 +7,12 @@
         <div class="ui placeholder segment">
             <div class="ui icon header">
                 <i class="green excel file outline icon"></i>
-                <h2 color='green'>.xls or .xlsx files only</h2>
+                <h2 color='green'>.xls or .xlsx files only {{unique_child}}</h2>
                 <!-- <form method="POST" action='/import' class="dropzone dz-clickable" 
                     id="dropper" enctype="multipart/form-data">
                 </form> -->
-                {{ dropzone.create(action='import_growth_data') }}
-                {{ dropzone.config(custom_options="acceptedFiles: '.xls, .xlsx'", custom_init="dz = this; dz.on('complete', function(file){document.getElementById('upload_complete_button').style.visibility = 'visible';});") }}
+                    {{ dropzone.create(action='import_growth_data') }}
+                    {{ dropzone.config(custom_options="acceptedFiles: '.xls, .xlsx'", custom_init="dz = this; dz.on('success', function(){ window.location.href=['/uploaded_data/true'] })") }}
             </div>
         </div>
         <div class="ui container">
@@ -32,10 +32,9 @@
                         </tr>
                     </thead>
                 </table>
-            </div>
-            <!-- <button class="ui green button" onclick="window.location.href='{{url_for('uploaded_data', id='example')}}'">View Example</button> -->
+            </div>            
             <button class="ui green button" id='popup_button' style="visibility: hidden;">Create Fictional Child Data</button>
-            <button class="ui green button" id='upload_complete_button' style="visibility: hidden;"  onclick="window.location.href='{{url_for('uploaded_data', id='sheet')}}'">View Upload</button>
+            <button class="ui green button" id='upload_complete_button' style="visibility: hidden;"  onclick="window.location.href='{{url_for('uploaded_data', unique_child=unique_child)}}'">View Upload</button>
         </div>
         </div>
     </div>

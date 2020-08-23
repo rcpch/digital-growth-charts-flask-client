@@ -37,7 +37,7 @@
             {% endfor %}
           </tbody>
         </table>
-        <button onclick="window.location.href='{{url_for('uploaded_data', id='download', data=data, unique_child=unique_child)}}'" class="green ui button" type="submit" method='post'>Download .XLSX</button>
+        <button onclick="window.location.href='{{url_for('download')}}'" class="green ui button" type="submit" method='post'>Download .XLSX</button>
         {% if unique_child %}
           <!-- <div class="ui green button" id='velocityButton'>Dynamic Calculations</div> -->
           <div class="ui modal">

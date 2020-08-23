@@ -2,7 +2,7 @@
 from datetime import datetime
 from os import path, listdir, remove, environ
 from measurement_request import MeasurementForm, FictionalChildForm
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session, abort, after_this_request
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session, abort, send_file
 from flask_cors import CORS
 from flask import Response
 import markdown
@@ -139,73 +139,83 @@ def instructions():
 def import_growth_data():
     form = FictionalChildForm()
     if request.method == "POST":
+        ##empty out file system
+        for file in listdir(uploaded_data_folder):
+            filepath=path.join(uploaded_data_folder, file)
+            if path.exists(filepath):
+                remove(filepath)
         ## can only receive .xls, .xlsx, or .csv files TODO need to chunk files
         file = request.files["file"]
-        # static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
-        # file.save(path.join(static_directory, file.filename))
-        file.save(path.join(uploaded_data_folder, file.filename))
-        return make_response("ok")
-    else:
-        return render_template("import.html", form=form)
-
-@app.route("/uploaded_data/<id>", methods=["GET"])
-def uploaded_data(id):
-    global table_data
-    if id=='sheet':
-        # get file from store
-        # static_directory = path.join(path.abspath(path.dirname(__file__)), "static/uploaded_data")
-        global static_file
-        global static_file_name
-        for file_name in listdir(uploaded_data_folder):
-            file_path = path.join(uploaded_data_folder, file_name)
-            static_file = file_path
-            static_file_name = file_name
-        files = {'excel_file': (static_file_name, open(static_file, 'rb'))}
+        file.filename = "output.xlsx"
+        file = {'excel_file': file}
+        
+        #send file to API 
         try:
             response=requests.post(f"{API_BASEURL}/api/v1/json/spreadsheet", 
-                files=files
+                files=file
             )
-            remove(static_file)
         except:
-            remove(static_file)
             return make_response("Error occurred", 500)
+        #save response as json in filesystem + xls.
+        
+        #need to pass on unique_child flag to uploaded_date
         if response.json()['valid']:
-            table_data = response.json()['data']
+            #save the excel file in uploaded_data folder
+            download_excel.save_as_excel(response.json()['data'], uploaded_data_folder)
+            #save the data as json in data.txt in uploaded_data folder
+            new_json_data_file=path.join(uploaded_data_folder, 'data.txt')
+            with open(new_json_data_file, 'w') as outfile:
+                json.dump(response.json()['data'], outfile)
+            
             unique_child = response.json()['unique_child']
         else:
             error = response.json()['error']
-            #pass this message to template
-
-        if unique_child:
-            ## the measurements are from a unique child - get the chart data
-            try:
-                payload = {
-                            "results": json.dumps(table_data),
-                            "unique_child": "true"
-                        }
-                chart_response = requests.post(f"{API_BASEURL}/api/v1/json/chart_data", data=payload )
-                chart_data=chart_response.json()
-            except:
-                #error
-                chart_data = None
-        else: 
-            chart_data = None
+            return make_response(error)
         
-        unique_child_string = 'false'
-        if unique_child:
-            unique_child_string = 'true'
-        return render_template("uploaded_data.html", table_data=table_data, chart_results=chart_data, unique_child=unique_child_string)
+        return make_response(json.dumps({'success':True, unique_child: unique_child}), 200, {'ContentType':'application/json'})
+    else:
+        return render_template("import.html", form=form)
 
-    elif id=="download":
-        ## saves table_data to excel format in static folder then deletes after download
-        download_excel.save_as_excel(table_data, uploaded_data_folder)
-        # temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
-        file_path = path.join(uploaded_data_folder, "output.xlsx")
+@app.route("/uploaded_data/<unique_child>", methods=["GET"])
+def uploaded_data(unique_child):    
+    # retrieve the json file from the filesystem
+    file_path = path.join(uploaded_data_folder, "data.txt")
+    with open(file_path) as json_file:
+        table_data=json.load(json_file)
+
+    if unique_child:
+        ## the measurements are from a unique child - get the chart data
+        try:
+            payload = {
+                        "results": table_data,
+                        "unique_child": "true"
+                    }
+            chart_response = requests.post(f"{API_BASEURL}/api/v1/json/chart_data", data=payload )
+            chart_data=chart_response.json()
+        except:
+            #error
+            chart_data = None
+    else: 
+        chart_data = None
+    
+    unique_child_string = 'false'
+    if unique_child:
+        unique_child_string = 'true'
+    return render_template("uploaded_data.html", table_data=table_data, chart_results=chart_data, unique_child=unique_child_string)
+
+@app.route("/download")
+def download():
+    ## saves table_data to excel format in static folder then deletes after download
+    try:    
         return send_from_directory(directory=uploaded_data_folder, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        @after_this_request
-        def remove_file(filepath):
-            remove(file_path)
-            return redirect(url_for('home'))
+    except:
+        print("error")
+    finally:
+        for file in listdir(uploaded_data_folder):
+            filepath=path.join(uploaded_data_folder, file)
+            if path.exists(filepath):
+                remove(filepath)
+
 
 if __name__ == "__main__":
     app.run()
