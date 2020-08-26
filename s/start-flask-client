@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# runs the Flask client in development mode for you
+# The Flask client runs on port **5001** by default
+# Tells the application that the API server is running on port 5000
+export FLASK_ENV=development
+export FLASK_APP=app.py
+export GROWTH_API_BASEURL=http://localhost:5000
+flask run -h localhost -p 5001
