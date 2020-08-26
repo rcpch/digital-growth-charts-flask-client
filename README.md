@@ -14,21 +14,17 @@ For details of our typical Python development setup, see the API repository http
 
 These instructions assume you are also running the API application on the same machine, which is why it reassigns the client's Flask port to 5001, on the presumption that the API is on 5000. If you are using an alternative setup then you can just run Flask on 5000.
 
-* `git clone` this repository into a suitable location on your development machine  
+* Clone this repository into a suitable location on your development machine  
 `$ git clone https://github.com/rcpch/digital-growth-charts-flask-client.git`  
-* `cd` into the directory  
+* Move into the directory  
 `$ cd digital-growth-charts-flask-client`  
-* install the Python dependencies  
+* Install the Python dependencies  
 `$ pip install -r requirements.txt`  
-* Tell Flask you are in Development mode  
-`$ export FLASK_ENV=development`
-* Set up Flask so it knows what your app is called  
-`$ export FLASK_APP=app.py`  
-* Tell your client where the API is located (defaults to 5000 for now)
-`$ export GROWTH_API_BASEURL=http://localhost:5000`  
-* Run Flask on port 5001  
-`$ flask run -h localhost -p 5001`  
-* All of that in a single line command: `export FLASK_ENV=development;export FLASK_APP=app.py;export GROWTH_API_BASEURL=http://localhost:5000;flask run -h localhost -p 5001`
+* Run the development script  
+` $ s/start-flask-client`  
+If you need to vary any of the parameters passed to Flask, you can either modify the startup script or simply pass the commands to the shell manually.
+Scripts are located in the `s/` folder in the application root.
+
 
 ## Endpoints
 - `/` This endpoint accepts a GET request and returns age, centile and SDS calculations of children's growth data. A typical response is shown below in [Arguments](#Arguments). Note that growth reference data **do not** exist to calculate SDS or centiles for:
