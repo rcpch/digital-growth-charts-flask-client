@@ -1,55 +1,63 @@
-
+from client_controllers import chunk_file, import_excel_data, download_excel
 from datetime import datetime
-from os import path, listdir, remove, environ
-from measurement_request import MeasurementForm, FictionalChildForm
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, abort, send_file
+from flask import Flask, Response, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, abort, send_file
 from flask_cors import CORS
-from flask import Response
+from flask_dropzone import Dropzone
+from measurement_request import MeasurementForm, FictionalChildForm
+from os import path, listdir, remove, environ, urandom
+from pathlib import Path
+from werkzeug.utils import secure_filename
+
 import markdown
 import requests
 import json
-from client_controllers import chunk_file, import_excel_data, download_excel
-from werkzeug.utils import secure_filename
-from pathlib import Path
-from flask_dropzone import Dropzone
 
 
-# client side controller to manipulate excel sheet
-"""
-we have two options here: either upload the spreadsheet, store it temporarily client side in order to create the dataframe and 
-manipulate fields client side here, or send the dataframe to the server. The second option is preferable
-"""
 
-
+#######################
+##### FLASK SETUP #####
 app = Flask(__name__, static_folder="static")
-app.config["SECRET_KEY"] = "UK_WHO" #not very secret - this will need complicating and adding to config
 CORS(app)
 Dropzone(app)
 
-assets_folder = path.join(app.root_path, 'static')
-uploaded_data_folder = path.join(assets_folder, 'uploaded_data')
-
-from app import app
-
-"""
-SETUP THE API
-TODO: consider use of "configparser" for this
-API_BASEURL defaults to "localhost:5000" unless explicitly set
-"""
-
+### Declare shell colour variables for logging output
 OKBLUE = "\033[94m"
 OKGREEN = "\033[92m"
 WARNING = "\033[93m"
 FAIL = "\033[91m"
 ENDC = "\033[0m"
 
+### Load the secret key from the ENV if it has been set
+if "FLASK_SECRET_KEY" in environ:
+    app.secret_key = environ["FLASK_SECRET_KEY"]
+    print(f"{OKGREEN} * FLASK_SECRET_KEY was loaded from the environment{ENDC}")
+# Otherwise create a new one. (NB: We don't need session persistence between reboots of the app)
+else:
+    app.secret_key = urandom(16)
+    print(f"{OKGREEN} * A new SECRET_KEY for Flask was automatically generated{ENDC}")
+
+### Declare paths for temporary uploads folder
+assets_folder = path.join(app.root_path, 'static')
+uploaded_data_folder = path.join(assets_folder, 'uploaded_data')
+
+from app import app
+
+##### END FLASK SETUP #####
+###########################
+
+
+
+#####################
+##### API SETUP #####
+# TODO: consider use of "configparser" for this
+#API_BASEURL defaults to "localhost:5000" unless explicitly set
+
 API_BASEURL=environ.get("GROWTH_API_BASEURL") or "http://localhost:5000"
 print(f"{OKGREEN} * Growth Charts API_BASEURL is {API_BASEURL}{ENDC}")
 
+##### END API SETUP #####
+#########################
 
-"""
-FLASK CLIENT ROUTES
-"""
 
 # FICTIONAL CHILD
 @app.route("/fictionalchild", methods=["POST"])
