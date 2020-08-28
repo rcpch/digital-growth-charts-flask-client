@@ -22,6 +22,7 @@ manipulate fields client side here, or send the dataframe to the server. The sec
 
 
 app = Flask(__name__, static_folder="static")
+app.config["SECRET_KEY"] = "UK_WHO" #not very secret - this will need complicating and adding to config
 CORS(app)
 Dropzone(app)
 
