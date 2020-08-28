@@ -2,7 +2,7 @@
 from datetime import datetime
 from os import path, listdir, remove, environ
 from measurement_request import MeasurementForm, FictionalChildForm
-from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, session, abort, send_file
+from flask import Flask, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, abort, send_file
 from flask_cors import CORS
 from flask import Response
 import markdown
@@ -22,7 +22,6 @@ manipulate fields client side here, or send the dataframe to the server. The sec
 
 
 app = Flask(__name__, static_folder="static")
-app.config["SECRET_KEY"] = "UK_WHO" #not very secret - this will need complicating and adding to config
 CORS(app)
 Dropzone(app)
 
