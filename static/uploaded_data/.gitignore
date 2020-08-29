@@ -1,5 +1,0 @@
-# Git should Ignore everything in this directory
-# The directory is used for storing uploaded Excel sheet data temporarily
-*
-# Except this file
-!.gitignore

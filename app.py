@@ -188,14 +188,14 @@ def import_growth_data():
 def uploaded_data(unique_child):    
     # retrieve the json file from the filesystem
     file_path = path.join(uploaded_data_folder, "data.txt")
-    with open(file_path) as json_file:
-        table_data=json.load(json_file)
-
+    with open(file_path, "r") as json_file:
+        table_data=json.loads(json_file.read())
+    
     if unique_child:
         ## the measurements are from a unique child - get the chart data
         try:
             payload = {
-                        "results": table_data,
+                        "results": json.dumps(table_data),
                         "unique_child": "true"
                     }
             chart_response = requests.post(f"{API_BASEURL}/api/v1/json/chart_data", data=payload )
