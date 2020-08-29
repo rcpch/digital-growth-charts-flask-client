@@ -4,6 +4,7 @@ from flask import request
 
 def chunk_file(file, file_path):
     ## thanks to Chris Griffith, Code Calamity for this code - upload files, chunk if large
+    ## currently deprecated from code base
     
     current_chunk = int(request.form['dzchunkindex'])
 

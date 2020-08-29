@@ -4,7 +4,7 @@ from os import path
 import pandas as pd
 from datetime import datetime, date
 
-def save_as_excel(python_dict, upload_root: str):
+def save_as_csv(python_dict, upload_root: str):
     data_list = python_dict         #json.loads(json_string)
     data = []
     for counter, value in enumerate(data_list):
@@ -28,6 +28,6 @@ def save_as_excel(python_dict, upload_root: str):
     headings = ['birth_date', 'measurement_date', 'gestation_weeks', 'gestation_days', 'estimated_date_delivery', 'corrected_decimal_age', 'chronological_decimal_age', 'measurement_value', 'measurement_method', 'sds', 'centile']
     data_frame = pd.DataFrame(data, columns=headings)
     data_frame.index+=1
-    out_file_2 = path.join(upload_root, "output.xlsx")
-    excel_file = data_frame.to_excel(out_file_2)
-    return excel_file
+    out_file_2 = path.join(upload_root, "output.csv")
+    csv_file = data_frame.to_csv(out_file_2)
+    return csv_file

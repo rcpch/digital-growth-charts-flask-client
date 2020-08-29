@@ -1,4 +1,4 @@
-from client_controllers import chunk_file, import_excel_data, download_excel
+from client_controllers import save_as_csv
 from datetime import datetime
 from flask import Flask, Response, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, abort, send_file, session
 from flask_cors import CORS
@@ -17,11 +17,6 @@ import json
 #######################
 ##### FLASK SETUP #####
 app = Flask(__name__, static_folder="static")
-# app.config.update(
-#     DROPZONE_REDIRECT_VIEW="url_for('uploaded_data', unique_child=uniquechild)",
-#     DROPZONE_ALLOWED_FILE_TYPE='application/xls, application/xlsx, application/csv',
-# )
-# {{ dropzone.config(custom_options="acceptedFiles: '.xls, .xlsx'", custom_init="dz = this; dz.on('success', function(){ window.location.href=['/uploaded_data/true'] })") }}
 CORS(app)
 Dropzone(app)
 
@@ -157,10 +152,10 @@ def import_growth_data():
             filepath=path.join(uploaded_data_folder, file)
             if path.exists(filepath):
                 remove(filepath)
-        ## can only receive .xls, .xlsx, or .csv files TODO need to chunk files
+        ## can only receive .csv files TODO need to chunk files
         file = request.files["file"]
-        file.filename = "output.xlsx"
-        file = {'excel_file': file}
+        file.filename = "output.csv"
+        file = {'csv_file': file}
         
         #send file to API 
         try:
@@ -174,7 +169,7 @@ def import_growth_data():
         #need to pass on unique_child flag to uploaded_date
         if response.json()['valid']:
             #save the excel file in uploaded_data folder
-            download_excel.save_as_excel(response.json()['data'], uploaded_data_folder)
+            save_as_csv.save_as_csv(response.json()['data'], uploaded_data_folder)
             #save the data as json in data.txt in uploaded_data folder
             new_json_data_file=path.join(uploaded_data_folder, 'data.txt')
             with open(new_json_data_file, 'w') as outfile:
@@ -223,7 +218,7 @@ def uploaded_data():
 def download():
     ## saves table_data to excel format in static folder then deletes after download
     try:    
-        return send_from_directory(directory=uploaded_data_folder, filename="output.xlsx", as_attachment=True, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        return send_from_directory(directory=uploaded_data_folder, filename="output.csv", as_attachment=True, mimetype='text/csv')
     except:
         print("error")
     finally:
