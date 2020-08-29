@@ -7,12 +7,12 @@
         <div class="ui placeholder segment">
             <div class="ui icon header">
                 <i class="green excel file outline icon"></i>
-                <h2 color='green'>.xls or .xlsx files only {{unique_child}}</h2>
+                <h2 color='green'>.xls or .xlsx files only</h2>
                 <!-- <form method="POST" action='/import' class="dropzone dz-clickable" 
                     id="dropper" enctype="multipart/form-data">
                 </form> -->
+                    {{ dropzone.config(custom_options="acceptedFiles: '.xls, .xlsx'", redirect_url=url_for('uploaded_data')) }}
                     {{ dropzone.create(action='import_growth_data') }}
-                    {{ dropzone.config(custom_options="acceptedFiles: '.xls, .xlsx'", custom_init="dz = this; dz.on('success', function(){ window.location.href=['/uploaded_data/true'] })") }}
             </div>
         </div>
         <div class="ui container">

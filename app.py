@@ -1,6 +1,6 @@
 from client_controllers import chunk_file, import_excel_data, download_excel
 from datetime import datetime
-from flask import Flask, Response, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, abort, send_file
+from flask import Flask, Response, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, abort, send_file, session
 from flask_cors import CORS
 from flask_dropzone import Dropzone
 from measurement_request import MeasurementForm, FictionalChildForm
@@ -17,6 +17,11 @@ import json
 #######################
 ##### FLASK SETUP #####
 app = Flask(__name__, static_folder="static")
+# app.config.update(
+#     DROPZONE_REDIRECT_VIEW="url_for('uploaded_data', unique_child=uniquechild)",
+#     DROPZONE_ALLOWED_FILE_TYPE='application/xls, application/xlsx, application/csv',
+# )
+# {{ dropzone.config(custom_options="acceptedFiles: '.xls, .xlsx'", custom_init="dz = this; dz.on('success', function(){ window.location.href=['/uploaded_data/true'] })") }}
 CORS(app)
 Dropzone(app)
 
@@ -176,20 +181,23 @@ def import_growth_data():
                 json.dump(response.json()['data'], outfile)
             
             unique_child = response.json()['unique_child']
+            session['unique_child']=unique_child ## store unique_child in a session
         else:
             error = response.json()['error']
             return make_response(error)
         
-        return make_response(json.dumps({'success':True, unique_child: unique_child}), 200, {'ContentType':'application/json'})
+        return make_response(json.dumps({'success':True}), 200, {'ContentType':'application/json'})
     else:
         return render_template("import.html", form=form)
 
-@app.route("/uploaded_data/<unique_child>", methods=["GET"])
-def uploaded_data(unique_child):    
+@app.route("/uploaded_data", methods=["GET"])
+def uploaded_data():    
     # retrieve the json file from the filesystem
     file_path = path.join(uploaded_data_folder, "data.txt")
     with open(file_path, "r") as json_file:
         table_data=json.loads(json_file.read())
+    
+    unique_child=session.get('unique_child')
     
     if unique_child:
         ## the measurements are from a unique child - get the chart data
