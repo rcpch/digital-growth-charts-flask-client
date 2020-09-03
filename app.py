@@ -242,9 +242,9 @@ def internal_server_error(e):
 
 def clear_upload_folder():
     for file in listdir(uploaded_data_folder):
-            filepath=path.join(uploaded_data_folder, file)
-            if path.exists(filepath):
-                remove(filepath)
+        filepath=path.join(uploaded_data_folder, file)
+        if path.exists(filepath):
+            remove(filepath)
 
 if __name__ == "__main__":
     app.run()
