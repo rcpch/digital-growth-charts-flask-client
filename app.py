@@ -19,6 +19,7 @@ import json
 app = Flask(__name__, static_folder="static")
 CORS(app)
 Dropzone(app)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 ### Declare shell colour variables for logging output
 OKBLUE = "\033[94m"
@@ -123,9 +124,7 @@ def home():
     else:
         ## delete files if still present
         # temp_directory = Path.cwd().joinpath("static").joinpath("uploaded_data")
-        for filename in listdir(uploaded_data_folder):
-            if filename:
-                remove(path.join(uploaded_data_folder, filename))
+        clear_upload_folder()
         return render_template("measurement_form.html", form = form)
 
 
@@ -146,12 +145,10 @@ def instructions():
 @app.route("/import", methods=["GET", "POST"])
 def import_growth_data():
     form = FictionalChildForm()
+    ##empty out file system
+    clear_upload_folder()
     if request.method == "POST":
-        ##empty out file system
-        for file in listdir(uploaded_data_folder):
-            filepath=path.join(uploaded_data_folder, file)
-            if path.exists(filepath):
-                remove(filepath)
+
         ## can only receive .csv files TODO need to chunk files
         file = request.files["file"]
         file.filename = "output.csv"
@@ -164,7 +161,7 @@ def import_growth_data():
             )
         except:
             return make_response("Error occurred", 500)
-        #save response as json in filesystem + xls.
+        #save response as json in filesystem + csv.
         
         #need to pass on unique_child flag to uploaded_date
         if response.json()['valid']:
@@ -217,16 +214,37 @@ def uploaded_data():
 @app.route("/download")
 def download():
     ## saves table_data to excel format in static folder then deletes after download
-    try:    
-        return send_from_directory(directory=uploaded_data_folder, filename="output.csv", as_attachment=True, mimetype='text/csv')
+    try:
+        response=send_from_directory(directory=uploaded_data_folder, filename="output.csv", as_attachment=True, mimetype='text/csv')
+        return response
     except:
         print("error")
     finally:
-        for file in listdir(uploaded_data_folder):
+        clear_upload_folder()
+        
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template('403.html'), 403
+
+@app.errorhandler(410)
+def gone(e):
+    return render_template('410.html'), 410
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
+
+def clear_upload_folder():
+    for file in listdir(uploaded_data_folder):
             filepath=path.join(uploaded_data_folder, file)
             if path.exists(filepath):
                 remove(filepath)
-
 
 if __name__ == "__main__":
     app.run()

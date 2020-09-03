@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block header %}
+{% endblock %}
+{% block content %}
+    <div class="ui center aligned container">
+        <div class="ui large image">
+            <svg width="300" height="300">
+                <image xlink:href="/static/images/rcpch_logo.png" x="0" y="0" width="100%" height="100%"></image>
+            </svg>
+        </div>
+        <h1>{% block title %}401 - Resource nolonger available{% endblock %}</h1>
+        <h1>
+            The resource you have requested is nolonger available. <a href="{{url_for('home')}}">This </a> should take you back.
+        </h1>
+    </div>
+{% endblock %}
