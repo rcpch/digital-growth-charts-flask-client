@@ -42,13 +42,15 @@
         measurement_label = ''
         axis_label=''
         var child_measurement = []
+        var child_sds = []
 
         if(measurements[i] == 'height'){
           // centile_data_set = results.centile_data.bmi_centiles;
           centile_data_set = height_centiles
           axis_label = "Height/Length (m)";
           measurement_label = 'Height/Length';
-          child_measurement=results.child_data.heights; // child measurements
+          child_measurement=results.child_data.heights; // child measurement plots
+          child_sds=results.child_data.height_sds; // child sds plots
           // max_ticks = 200;
         }
         if(measurements[i] == 'weight') {
@@ -56,21 +58,24 @@
           centile_data_set = weight_centiles;
           axis_label = "Weight (kg)";
           measurement_label = 'Weight';
-          child_measurement = results.child_data.weights.sort((a,b)=>a.x > b.x ? 1 : -1); // child measurements
+          child_measurement = results.child_data.weights; // child measurement plots
+          child_sds = results.child_data.weight_sds; // child sds plots
           // max_ticks = 180;
         }
         if(measurements[i] == 'bmi') {
           centile_data_set = bmi_centiles;
           axis_label = "BMI (kg/2)";
           measurement_label = 'Body Mass Index';
-          child_measurement = results.child_data.bmis.sort((a,b)=>a.x > b.x ? 1 : -1); // child measurements
+          child_measurement = results.child_data.bmis; // child measurement plots
+          child_sds=results.child_data.bmi_sds; // child sds plots
           // max_ticks = 65;
         }
         if(measurements[i] == 'ofc') {
           centile_data_set = ofc_centiles;
           axis_label = "Head Circumference (cm)";
           measurement_label = 'Head Circumference';
-          child_measurement = results.child_data.ofcs.sort((a,b)=>a.x > b.x ? 1 : -1); // child measurements
+          child_measurement = results.child_data.ofcs; // child measurement plots
+          child_sds = results.child_data.ofc_sds; // child sds plots
           // max_ticks = 70;
         }
 
@@ -518,6 +523,8 @@
               ]
         }
 
+
+        // extract the data for SDS charts
         for (dataPoint=0; dataPoint<child_measurement.length-1; dataPoint+=2){
           // the child measurements are in pairs, adjusted and chronolgical - break these into pairs
           var dataPair={
@@ -526,11 +533,48 @@
               fill: false,
               borderWidth: 1.0,
               pointRadius: 2.0,
-              pointStyle: ['circle','triangle'],
+              pointStyle: ['triangle','circle'],
               borderColor: "rgba(88,88,88,0.5)",
               borderDash: [10,5]
           }
           data.datasets.push(dataPair);
+        }
+
+        var sds_data = {
+          datasets: [
+
+          ]
+        }
+
+        var sds_final_array=[];
+        for (sdsDataPoint=0; sdsDataPoint<child_sds.length-1; sdsDataPoint+=2){
+          // the child sds are in pairs, adjusted and chronolgical - break these into pairs: SAVE ONLY THE CORRECTED FOR PLOTTING
+          sds_final_array.push(child_sds[sdsDataPoint]);
+        }
+
+        var sdsDataSeries={
+          label: measurements[i] + ' SDS',
+          data: sds_final_array,
+          fill: false,
+          borderWidth: 1.0,
+          pointRadius: 2.0,
+          pointStyle: ['triangle','circle'],
+          borderColor: "rgba(88,88,88,0.5)",
+          borderDash: [10,5]
+        }
+
+        sds_data.datasets.push(sdsDataSeries);
+    
+
+        var sds_options = {
+          title: {
+            display: true,
+            position: 'top',
+            text: 'SDS Chart'
+          },
+          legend: {
+            display: false
+          }
         }
               
         var options = {
@@ -696,4 +740,10 @@
                   options: options
                 });
               }
+              var sdsCtx = document.getElementById('sdsChart').getContext('2d');
+              var sdsChart = new Chart(sdsCtx, {
+                type: 'scatter',
+                data: sds_data,
+                options: sds_options
+              });
       }
