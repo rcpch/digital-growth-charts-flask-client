@@ -1,16 +1,16 @@
-from client_controllers import save_as_csv
-from datetime import datetime
-from flask import Flask, Response, render_template, request, flash, redirect, url_for, send_from_directory, make_response, jsonify, abort, send_file, session
+"""
+RCPCH Digital Growth Charts Flask Demo Client
+"""
+
+from os import path, listdir, remove, environ, urandom
+import json
+
+import requests
 from flask_cors import CORS
 from flask_dropzone import Dropzone
+from flask import Flask, render_template, request, send_from_directory, make_response, session
+from client_controllers import save_as_csv
 from measurement_request import MeasurementForm, FictionalChildForm
-from os import path, listdir, remove, environ, urandom
-from pathlib import Path
-from werkzeug.utils import secure_filename
-
-import markdown
-import requests
-import json
 
 
 #######################
