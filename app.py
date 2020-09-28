@@ -52,7 +52,7 @@ from app import app
 # API_BASEURL defaults to "localhost:5000" unless explicitly set
 
 API_BASEURL = environ.get(
-    "GROWTH_API_BASEURL") or "http://localhost:5000/growth"
+    "GROWTH_API_BASEURL") or "http://localhost:5000/"
 print(f"{OKGREEN} * Growth Charts API_BASEURL is {API_BASEURL}{ENDC}")
 
 ##### END API SETUP #####
