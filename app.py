@@ -79,9 +79,9 @@ def home():
     form = MeasurementForm(request.form)
     if request.method == "POST":
         if form.validate_on_submit():
-            payload = {
-                "birth_date": form.birth_date.data,
-                "observation_date": form.obs_date.data,
+            measurement_payload = {
+                "birth_date": str(form.birth_date.data),
+                "observation_date": str(form.obs_date.data),
                 "height_in_cm": float(form.height.data),
                 "weight_in_kg": float(form.weight.data),
                 "head_circ_in_cm": float(form.ofc.data),
@@ -93,16 +93,13 @@ def home():
             # collect user form entries and perform date and SDS/Centile calculations
             response = requests.post(
                 f"{API_BASEURL}/uk-who/calculations",
-                data=payload
-            )
-            print(response.json())  # to debug 500 error in client
+                json=measurement_payload)
 
             # serialize results before passing to test_results table
             table_results = response.json()
-
             # results are on a single child and can be charted. Request chart data from api
-            payload = {
-                "results": json.dumps(table_results),
+            chart_payload = {
+                "results": table_results,
                 "unique_child": "true"
             }
 
@@ -110,8 +107,7 @@ def home():
             try:
                 chart_data = requests.post(
                     f"{API_BASEURL}/uk-who/chart-data",
-                    data=payload
-                )
+                    json=chart_payload)
             except ValueError as error:
                 chart_data = None
                 print(error)
@@ -156,8 +152,7 @@ def import_growth_data():
         # send file to API
         try:
             response = requests.post(f"{API_BASEURL}/uk-who/spreadsheet",
-                                     files=file
-                                     )
+                                     files=file)
         except:
             return make_response("Error occurred", 500)
         # save response as json in filesystem + csv.
