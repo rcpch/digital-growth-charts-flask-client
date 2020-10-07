@@ -373,7 +373,11 @@
                             {% if measurement.child_observation_value.measurement_method == 'bmi' %}
                                 <td>
                                     <div>
-                                        {{ measurement.measurement_calculated_values.sds|round(2) }}
+                                        {% if measurement.measurement_calculated_values.sds %}
+                                            {{ measurement.measurement_calculated_values.sds|round(2) }}
+                                        {% else %}
+                                            No value
+                                        {% endif %}
                                     </div>
                                 </td>
                             {% endif %}
@@ -391,14 +395,12 @@
                             {% if measurement.child_observation_value.measurement_method == 'bmi' %}
                                     <td>
                                         <div class="ui blue header">
-                                            {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
-                                                {{ measurement.measurement_calculated_values.centile|round(1) }}
-                                            {% elif measurement.measurement_calculated_values.centile >= 100 %}
+                                            {% if measurement.measurement_calculated_values.centile and measurement.measurement_calculated_values.centile >= 100 %}
                                                 >99.6<sup>th</sup>
-                                            {% elif measurement.measurement_calculated_values.centile <= 0%}
+                                            {% elif measurement.measurement_calculated_values.centile and measurement.measurement_calculated_values.centile <= 0%}
                                                 < 0.4<sup>th</sup>
                                             {% else %}
-                                                {{ measurement.measurement_calculated_values.centile|round|int}}
+                                                {{ measurement.measurement_calculated_values.centile}}
                                             {% endif %}
                                         </div>
                                     </td>
