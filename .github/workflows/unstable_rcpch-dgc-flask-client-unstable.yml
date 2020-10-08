@@ -31,4 +31,4 @@ jobs:
       with:
         app-name: 'rcpch-dgc-flask-client-unstable'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_fe6e7df896d045d18d0d7670d1a33224 }}
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_aade4a50d94c4dfcadc9dbfc3ca6af19 }}
