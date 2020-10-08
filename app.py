@@ -4,6 +4,7 @@ RCPCH Digital Growth Charts Flask Demo Client
 
 from os import path, listdir, remove, environ, urandom
 import json
+import math
 
 import requests
 from flask_cors import CORS
@@ -79,24 +80,64 @@ def home():
     form = MeasurementForm(request.form)
     if request.method == "POST":
         if form.validate_on_submit():
-            measurement_payload = {
-                "birth_date": str(form.birth_date.data),
-                "observation_date": str(form.obs_date.data),
-                "height_in_cm": float(form.height.data),
-                "weight_in_kg": float(form.weight.data),
-                "head_circ_in_cm": float(form.ofc.data),
-                "sex": str(form.sex.data),
-                "gestation_weeks": int(form.gestation_weeks.data),
-                "gestation_days": int(form.gestation_days.data)
-            }
+            height_response = requests.post(
+                f"{API_BASEURL}/uk-who/calculation",
+                json={
+                    "birth_date": str(form.birth_date.data),
+                    "observation_date": str(form.obs_date.data),
+                    "observation_value": float(form.height.data),
+                    "measurement_method": "height",
+                    "sex": str(form.sex.data),
+                    "gestation_weeks": int(form.gestation_weeks.data),
+                    "gestation_days": int(form.gestation_days.data)
+                })
 
-            # collect user form entries and perform date and SDS/Centile calculations
-            response = requests.post(
-                f"{API_BASEURL}/uk-who/calculations",
-                json=measurement_payload)
+            weight_response = requests.post(
+                f"{API_BASEURL}/uk-who/calculation",
+                json={
+                    "birth_date": str(form.birth_date.data),
+                    "observation_date": str(form.obs_date.data),
+                    "observation_value": float(form.weight.data),
+                    "measurement_method": "weight",
+                    "sex": str(form.sex.data),
+                    "gestation_weeks": int(form.gestation_weeks.data),
+                    "gestation_days": int(form.gestation_days.data)
+                })
+
+            bmi = float(form.weight.data) / \
+                math.pow(float(form.height.data) / 100, 2)
+            bmi_response = requests.post(
+                f"{API_BASEURL}/uk-who/calculation",
+                json={
+                    "birth_date": str(form.birth_date.data),
+                    "observation_date": str(form.obs_date.data),
+                    "observation_value": bmi,
+                    "measurement_method": "bmi",
+                    "sex": str(form.sex.data),
+                    "gestation_weeks": int(form.gestation_weeks.data),
+                    "gestation_days": int(form.gestation_days.data)
+                })
+
+            ofc_response = requests.post(
+                f"{API_BASEURL}/uk-who/calculation",
+                json={
+                    "birth_date": str(form.birth_date.data),
+                    "observation_date": str(form.obs_date.data),
+                    "observation_value": float(form.ofc.data),
+                    "measurement_method": "ofc",
+                    "sex": str(form.sex.data),
+                    "gestation_weeks": int(form.gestation_weeks.data),
+                    "gestation_days": int(form.gestation_days.data)
+                })
 
             # serialize results before passing to test_results table
-            table_results = response.json()
+            table_results = [
+                height_response.json(),
+                weight_response.json(),
+                bmi_response.json(),
+                ofc_response.json()]
+
+            print(table_results)
             # results are on a single child and can be charted. Request chart data from api
             chart_payload = {
                 "results": table_results,
@@ -112,7 +153,15 @@ def home():
                 chart_data = None
                 print(error)
 
-            return render_template("test_results.html", table_result=table_results, chart_results=chart_data.json(), unique_child="true")
+            print(height_response)
+            return render_template(
+                "test_results.html",
+                height_result=height_response.json(),
+                weight_result=weight_response.json(),
+                bmi_result=bmi_response.json(),
+                ofc_result=ofc_response.json(),
+                chart_results=chart_data.json(),
+                unique_child="true")
 
         # form not validated. Need flash warning here
         return render_template("measurement_form.html", form=form)
@@ -245,6 +294,7 @@ def internal_server_error(e):
 
 def clear_upload_folder():
     for file in listdir(uploaded_data_folder):
+        print(file)
         filepath = path.join(uploaded_data_folder, file)
         if path.exists(filepath):
             remove(filepath)
