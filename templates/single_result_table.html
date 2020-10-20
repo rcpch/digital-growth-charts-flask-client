@@ -1,481 +1,402 @@
-{% if table_result %}
-    <div class="ui two column centered padded grid">
-        <!-- summary results -->
-        <div class="section">
-            <table class="ui very basic collapsing celled table">
-                <thead>
-                    <tr>
-                        <th style="border: 0px !important;"></th>
-                        <th colspan='2' style="border-left: 0px !important;">Dates</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td ></td>
-                        <td style="border: 0px !important;">
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Date of Birth
-                                    <div class="sub header"></div>
-                                </div>
-                            </h4>
-                        </td>
-                        <td>
-                            {{table_result[0].birth_data.birth_date}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;"></td>
-                        <td style="border-left: 0px !important;">
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Date of measurement
-                                    <div class="sub header"></div>
-                                </div>
-                            </h4>
-                        </td>
-                        <td>
-                            {{table_result[0].measurement_dates.observation_date}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;"></td>
-                        <td style="border-left: 0px !important;">
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Sex
-                                    <div class="sub header"></div>
-                                </div>
-                            </h4>
-                        </td>
-                        <td>
-                            {{table_result[0].birth_data.sex}}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;" id="gestational_age_delivery_explain">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        <td style="border-left: 0px !important;">
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Gestational Age at Delivery (Postmenstrual age)
-                                    <div class="sub header"></div>
-                                </div>
-                            </h4>
-                        </td>
-                        <td>
-                            {{table_result[0].birth_data.gestation_weeks}}<sup>+{{table_result[0].birth_data.gestation_days}}</sup> weeks
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;" id="chronological_decimal_age_explain">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        <td style="border-left: 0px !important;">
-                            <h4 class="ui header">
-                                
-                                <div class="content">
-                                    Chronological Decimal Age
-                                    <div class="sub header">                                
-                                    </div>
-                                </div>
-                            </h4>
-                        </td>
-                        <td>
-                            {{table_result[0].measurement_dates.chronological_decimal_age|round(3)}} y
-                        </td>
-                        <!-- <td class='chronological_decimal_age'>
-                            <i class="info green circle icon"></i>
-                        </td> -->
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;" id="corrected_decimal_age_explain">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        <td style="border-left: 0px !important;">
-                            <h4 class="ui image header">
-                                <div class="content">
-                                    Corrected Decimal Age
-                                    <div class="sub header"></div>
-                                </div>
-                            </h4>
-                        </td>
-                        {% if table_result[0].measurement_dates.corrected_decimal_age != 'None' %}
-                        <td>
-                            {{table_result[0].measurement_dates.corrected_decimal_age|round(3)}} y
-                        </td>
-                        <td id='corrected_decimal_age' style="border: 0px !important;">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        {% else %}
-                        <td>
-                            No correction needed
-                        </td>
-                        {% endif %}
-                        <!-- <td class='chronological_decimal_age'>
-                            <i class="info green circle icon"></i>
-                        </td> -->
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;" id="chronological_calendar_age_explain">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        <td style="border-left: 0px !important;">
-                            <h4 class="ui image header">
-                                <div class="content">
-                                    <div class="sub header"></div>
-                                    Chronological Calendar Age
-                                </div>
-                            </h4>
-                        </td>
-                        <td>
-                            {{table_result[0].measurement_dates.chronological_calendar_age}}
-                        </td>
-                        <!-- <td class='chronological_decimal_age'>
-                            <i class="info green circle icon"></i>
-                        </td> -->
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;" id="corrected_calendar_age_explain">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        <td style="border-left: 0px !important;">
-                        <h4 class="ui image header">
-                            
-                            <div class="content">
-                            Corrected Calendar Age
-                            <div class="sub header">
-                            </div>
-                        </div>
-                        </h4></td>
-                        {% if table_result[0].measurement_dates.corrected_calendar_age %}
-                        <td>
-                            {{table_result[0].measurement_dates.corrected_calendar_age}}
-                        </td>
-                        {% else %}
-                            <td>
-                                No correction needed
-                            </td>
-                        {% endif %}
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;" id="estimated_date_delivery_explain">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        <td style="border-left: 0px !important;">
-                        <h4 class="ui image header">
-                            
-                            <div class="content">
-                            Estimated Date of Delivery
-                            <div class="sub header">
-                            </div>
-                        </div>
-                        </h4></td>
-                        {% if table_result[0].birth_data.estimated_date_delivery_string %}
-                        <td>
-                            {{ table_result[0].birth_data.estimated_date_delivery_string }}
-                        </td>
-                        <!-- <td class='chronological_decimal_age'>
-                            <i class="info green circle icon"></i>
-                        </td> -->
-                        {% else %}
-                            <td>
-                                No correction needed
-                            </td>
-                        {% endif %}
-                    </tr>
-                    <tr>
-                        <td style="border: 0px !important;" id="corrected_gestational_age_explain">
-                            <i class="info green circle icon"></i>
-                        </td>
-                        <td style="border-left: 0px !important;">
-                            <h4 class="ui image header">
-                                <div class="content">
-                                Corrected Gestational Age (Postmenstrual Age after birth)
-                                </div>
-                            </h4>
-                        </td>
-                        {% if table_result[0].measurement_dates.corrected_gestational_age.corrected_gestation_weeks %}
-                        <td>
-                            {{table_result[0].measurement_dates.corrected_gestational_age.corrected_gestation_weeks}}<sup>+{{table_result[0].measurement_dates.corrected_gestational_age.corrected_gestation_days}}</sup> weeks
-                        </td>
-                        {% else %}
-                            <td>
-                                No correction needed
-                            </td>
-                        {% endif %}
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+<div class="ui two column centered padded grid">
+  <!-- summary results -->
+  <div class="section">
+    <table class="ui very basic collapsing celled table">
+      <thead>
+        <tr>
+          <th style="border: 0px !important"></th>
+          <th colspan="2" style="border-left: 0px !important">Dates</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td>
+          <td style="border: 0px !important">
+            <h4 class="ui header">
+              <div class="content">
+                Date of Birth
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          <td>{{height_result.birth_data.birth_date}}</td>
+        </tr>
+        <tr>
+          <td style="border: 0px !important"></td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui header">
+              <div class="content">
+                Date of measurement
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          <td>{{height_result.measurement_dates.observation_date}}</td>
+        </tr>
+        <tr>
+          <td style="border: 0px !important"></td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui header">
+              <div class="content">
+                Sex
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          <td>{{height_result.birth_data.sex}}</td>
+        </tr>
+        <tr>
+          <td
+            style="border: 0px !important"
+            id="gestational_age_delivery_explain"
+          >
+            <i class="info green circle icon"></i>
+          </td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui header">
+              <div class="content">
+                Gestational Age at Delivery (Postmenstrual age)
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          <td>
+            {{height_result.birth_data.gestation_weeks}}<sup
+              >+{{height_result.birth_data.gestation_days}}</sup
+            >
+            weeks
+          </td>
+        </tr>
+        <tr>
+          <td
+            style="border: 0px !important"
+            id="chronological_decimal_age_explain"
+          >
+            <i class="info green circle icon"></i>
+          </td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui header">
+              <div class="content">
+                Chronological Decimal Age
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          <td>
+            {{height_result.measurement_dates.chronological_decimal_age|round(3)}}
+            y
+          </td>
+        </tr>
+        <tr>
+          <td style="border: 0px !important" id="corrected_decimal_age_explain">
+            <i class="info green circle icon"></i>
+          </td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui image header">
+              <div class="content">
+                Corrected Decimal Age
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          {% if height_result.measurement_dates.corrected_decimal_age != 'None'
+          %}
+          <td>
+            {{height_result.measurement_dates.corrected_decimal_age|round(3)}} y
+          </td>
+          <td id="corrected_decimal_age" style="border: 0px !important">
+            <i class="info green circle icon"></i>
+          </td>
+          {% else %}
+          <td>No correction needed</td>
+          {% endif %}
+        </tr>
+        <tr>
+          <td
+            style="border: 0px !important"
+            id="chronological_calendar_age_explain"
+          >
+            <i class="info green circle icon"></i>
+          </td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui image header">
+              <div class="content">
+                <div class="sub header"></div>
+                Chronological Calendar Age
+              </div>
+            </h4>
+          </td>
+          <td>
+            {{height_result.measurement_dates.chronological_calendar_age}}
+          </td>
+        </tr>
+        <tr>
+          <td
+            style="border: 0px !important"
+            id="corrected_calendar_age_explain"
+          >
+            <i class="info green circle icon"></i>
+          </td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui image header">
+              <div class="content">
+                Corrected Calendar Age
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          {% if height_result.measurement_dates.corrected_calendar_age %}
+          <td>{{height_result.measurement_dates.corrected_calendar_age}}</td>
+          {% else %}
+          <td>No correction needed</td>
+          {% endif %}
+        </tr>
+        <tr>
+          <td
+            style="border: 0px !important"
+            id="estimated_date_delivery_explain"
+          >
+            <i class="info green circle icon"></i>
+          </td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui image header">
+              <div class="content">
+                Estimated Date of Delivery
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          {% if height_result.birth_data.estimated_date_delivery_string %}
+          <td>{{ height_result.birth_data.estimated_date_delivery_string }}</td>
+          {% else %}
+          <td>No correction needed</td>
+          {% endif %}
+        </tr>
+        <tr>
+          <td
+            style="border: 0px !important"
+            id="corrected_gestational_age_explain"
+          >
+            <i class="info green circle icon"></i>
+          </td>
+          <td style="border-left: 0px !important">
+            <h4 class="ui image header">
+              <div class="content">
+                Corrected Gestational Age (Postmenstrual Age after birth)
+              </div>
+            </h4>
+          </td>
+          {% if
+          height_result.measurement_dates.corrected_gestational_age.corrected_gestation_weeks
+          %}
+          <td>
+            {{height_result.measurement_dates.corrected_gestational_age.corrected_gestation_weeks}}<sup
+              >+{{height_result.measurement_dates.corrected_gestational_age.corrected_gestation_days}}</sup
+            >
+            weeks
+          </td>
+          {% else %}
+          <td>No correction needed</td>
+          {% endif %}
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
-        <!-- measurement table_results -->
-        <div class="section">
-            <table class="ui very basic collapsing celled table">
-                <thead>
-                    <tr>
-                        <th colspan='2'>Measurements</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <h4 class="ui blue header">
-                                <div class="content">
-                                    Height
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'height' %}
-                                <td>
-                                    {{ measurement.child_observation_value.measurement_value|round(1) }} cm
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    SDS
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                        {% if measurement.child_observation_value.measurement_method == 'height' %}
-                            <td>
-                                <div>
-                                    {{ measurement.measurement_calculated_values.sds|round(2) }}
-                                </div>
-                            </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Centile
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'height' %}
-                                <td>
-                                    <div class="ui blue header">
-                                        {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
-                                            {{ measurement.measurement_calculated_values.centile|round(1) }}
-                                        {% elif measurement.measurement_calculated_values.centile >= 100 %}
-                                            >99.6<sup>th</sup>
-                                        {% elif measurement.measurement_calculated_values.centile <= 0%}
-                                            < 0.4<sup>th</sup>
-                                        {% else %}
-                                            {{ measurement.measurement_calculated_values.centile|round|int}}
-                                        {% endif %}
-                                    </div>
-                                    <!-- <td id='height_centile' style="border: 0px !important;">
-                                        <i class="info green circle icon"></i>
-                                    </td> -->
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui blue header">
-                                <div class="content">
-                                    Weight
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'weight' %}
-                                <td>
-                                    {{ measurement.child_observation_value.measurement_value|round(2) }} kg
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    SDS
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'weight' %}
-                                <td>
-                                    <div >
-                                        {{ measurement.measurement_calculated_values.sds|round(2) }}
-                                    </div>
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Centile
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result  %}
-                            {% if measurement.child_observation_value.measurement_method == 'weight' %}
-                                <td>
-                                    <div class="ui blue header">
-                                        {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
-                                            {{ measurement.measurement_calculated_values.centile|round(1) }}
-                                        {% elif measurement.measurement_calculated_values.centile >= 100 %}
-                                            >99.6<sup>th</sup>
-                                        {% elif measurement.measurement_calculated_values.centile <= 0%}
-                                            < 0.4<sup>th</sup>
-                                        {% else %}
-                                            {{ measurement.measurement_calculated_values.centile|round|int}}
-                                        {% endif %}
-                                    </div>
-                                </td>
-                                <!-- <td id='weight_centile' style=" border: 0px !important;">
-                                    <i class="info green circle icon"></i>
-                                </td> -->
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui blue header">
-                                <div class="content">
-                                    BMI
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result  %}
-                            {% if measurement.child_observation_value.measurement_method == 'bmi' %}
-                                <td>
-                                    {{ measurement.child_observation_value.measurement_value|round(1) }} kg/m&#178;
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    SDS
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'bmi' %}
-                                <td>
-                                    <div>
-                                        {{ measurement.measurement_calculated_values.sds|round(2) }}
-                                    </div>
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Centile
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'bmi' %}
-                                    <td>
-                                        <div class="ui blue header">
-                                            {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
-                                                {{ measurement.measurement_calculated_values.centile|round(1) }}
-                                            {% elif measurement.measurement_calculated_values.centile >= 100 %}
-                                                >99.6<sup>th</sup>
-                                            {% elif measurement.measurement_calculated_values.centile <= 0%}
-                                                < 0.4<sup>th</sup>
-                                            {% else %}
-                                                {{ measurement.measurement_calculated_values.centile|round|int}}
-                                            {% endif %}
-                                        </div>
-                                    </td>
-                                    <!-- <td id='bmi_centile' style=" border: 0px !important;">
-                                        <i class="info green circle icon"></i>
-                                    </td> -->
-                                {% endif %}
-
-                            {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui blue header">
-                                <div class="content">
-                                    Head Circumference
-                                    <div class="sub header">
-                                    </div>
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'ofc' %}
-                                <td>
-                                    {{ measurement.child_observation_value.measurement_value }} cm
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    SDS
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result %}
-                            {% if measurement.child_observation_value.measurement_method == 'ofc' %}
-                                <td>
-                                    <div>
-                                        {{ measurement.measurement_calculated_values.sds|round(2) }}
-                                    </div>
-                                </td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td>
-                            <h4 class="ui header">
-                                <div class="content">
-                                    Centile
-                                </div>
-                            </h4>
-                        </td>
-                        {% for measurement in table_result  %}
-                            {% if measurement.child_observation_value.measurement_method == 'ofc' %}
-                                <td>
-                                    <div class="ui blue header">
-                                        {% if (measurement.measurement_calculated_values.centile >99 and measurement.measurement_calculated_values.centile < 100) or (measurement.measurement_calculated_values.centile < 1 and measurement.measurement_calculated_values.centile > 0) %}
-                                            {{ measurement.measurement_calculated_values.centile|round(1) }}
-                                        {% elif measurement.measurement_calculated_values.centile >= 100 %}
-                                            >99.6<sup>th</sup>
-                                        {% elif measurement.measurement_calculated_values.centile <= 0%}
-                                            < 0.4<sup>th</sup>
-                                        {% else %}
-                                            {{ measurement.measurement_calculated_values.centile|round|int}}
-                                        {% endif %}
-                                    </div>
-                                </td>
-                                <!-- <td id='ofc_centile' style=" border: 0px !important; ">
-                                    <i class="info green circle icon"></i>
-                                </td> -->
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-{% endif %}
+  <!-- measurement table_results -->
+  <div class="section">
+    <table class="ui very basic collapsing celled table">
+      <thead>
+        <tr>
+          <th colspan="2">Measurements</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <h4 class="ui blue header">
+              <div class="content">Height</div>
+            </h4>
+          </td>
+          <td>
+            {{ height_result.child_observation_value.measurement_value|round(1) }} cm
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">SDS</div>
+            </h4>
+          </td>
+          <td>
+            <div>
+              {{ height_result.measurement_calculated_values.sds|round(2) }}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">Centile</div>
+            </h4>
+          </td>
+          <td>
+            <div class="ui blue header">
+              {% if (height_result.measurement_calculated_values.centile >99 and
+              height_result.measurement_calculated_values.centile < 100) or
+              (height_result.measurement_calculated_values.centile < 1 and
+              height_result.measurement_calculated_values.centile > 0) %}
+                {{ height_result.measurement_calculated_values.centile|round(1) }}
+              {% elif height_result.measurement_calculated_values.centile >= 100 %}
+                > 99.6<sup>th</sup>
+              {% elif height_result.measurement_calculated_values.centile <= 0%}
+                < 0.4<sup>th</sup>
+              {% else %}
+                {{ height_result.measurement_calculated_values.centile|round|int}}
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui blue header">
+              <div class="content">Weight</div>
+            </h4>
+          </td>
+          <td>
+            {{ weight_result.child_observation_value.measurement_value|round(2) }}
+            kg
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">SDS</div>
+            </h4>
+          </td>
+          <td>
+            <div>
+              {{ weight_result.measurement_calculated_values.sds|round(2) }}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">Centile</div>
+            </h4>
+          </td>
+          <td>
+            <div class="ui blue header">
+              {% if (weight_result.measurement_calculated_values.centile >99 and
+              weight_result.measurement_calculated_values.centile < 100) or
+              (weight_result.measurement_calculated_values.centile < 1 and
+              weight_result.measurement_calculated_values.centile > 0) %}
+                {{ weight_result.measurement_calculated_values.centile|round(1) }}
+              {% elif weight_result.measurement_calculated_values.centile >= 100 %}
+                > 99.6<sup>th</sup>
+              {% elif weight_result.measurement_calculated_values.centile <= 0%}
+                < 0.4<sup>th</sup>
+              {% else %}
+                {{ weight_result.measurement_calculated_values.centile|round|int}}
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui blue header">
+              <div class="content">BMI</div>
+            </h4>
+          </td>
+          <td>
+            {{ bmi_result.child_observation_value.measurement_value|round(1) }} kg/m&#178;
+          </td>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">SDS</div>
+            </h4>
+          </td>
+          <td>
+            <div>
+              {% if bmi_result.measurement_calculated_values.sds %}
+                {{ bmi_result.measurement_calculated_values.sds|round(2) }}
+              {% else %}
+                No value
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">Centile</div>
+            </h4>
+          </td>
+          <td>
+            <div class="ui blue header">
+              {% if bmi_result.measurement_calculated_values.centile and
+              bmi_result.measurement_calculated_values.centile >= 100 %}
+                > 99.6<sup>th</sup>
+              {% elif bmi_result.measurement_calculated_values.centile and
+              bmi_result.measurement_calculated_values.centile <= 0%}
+                < 0.4<sup>th</sup>
+              {% else %}
+                {{ bmi_result.measurement_calculated_values.centile}}
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui blue header">
+              <div class="content">
+                Head Circumference
+                <div class="sub header"></div>
+              </div>
+            </h4>
+          </td>
+          <td>
+            {{ ofc_result.child_observation_value.measurement_value }} cm
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">SDS</div>
+            </h4>
+          </td>
+          <td>
+            <div>
+              {{ ofc_result.measurement_calculated_values.sds|round(2) }}
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h4 class="ui header">
+              <div class="content">Centile</div>
+            </h4>
+          </td>
+          <td>
+            <div class="ui blue header">
+              {% if (ofc_result.measurement_calculated_values.centile >99 and
+              ofc_result.measurement_calculated_values.centile < 100) or
+              (ofc_result.measurement_calculated_values.centile < 1 and
+              ofc_result.measurement_calculated_values.centile > 0) %}
+                {{ ofc_result.measurement_calculated_values.centile|round(1) }}
+              {% elif ofc_result.measurement_calculated_values.centile >= 100 %}
+                > 99.6<sup>th</sup>
+              {% elif ofc_result.measurement_calculated_values.centile <= 0%}
+                < 0.4<sup>th</sup>
+              {% else %}
+                {{ ofc_result.measurement_calculated_values.centile|round|int}}
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

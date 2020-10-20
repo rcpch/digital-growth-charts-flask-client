@@ -46,8 +46,8 @@
         if(measurements[i] == 'height'){
           // centile_data_set = results.centile_data.bmi_centiles;
           centile_data_set = height_centiles
-          axis_label = "Height/Length (m)";
-          measurement_label = 'Height/Length';
+          axis_label = "Height or Length (cm)";
+          measurement_label = "Height or Length";
           child_measurement=results.child_data.heights; // child measurements
           // max_ticks = 200;
         }
@@ -61,7 +61,7 @@
         }
         if(measurements[i] == 'bmi') {
           centile_data_set = bmi_centiles;
-          axis_label = "BMI (kg/2)";
+          axis_label = "Body Mass Index (kg/m2)";
           measurement_label = 'Body Mass Index';
           child_measurement = results.child_data.bmis.sort((a,b)=>a.x > b.x ? 1 : -1); // child measurements
           // max_ticks = 65;
