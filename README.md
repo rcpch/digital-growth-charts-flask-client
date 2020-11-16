@@ -31,7 +31,6 @@ These instructions assume you are also running the API application on the same m
 - Using the development script, by default the Flask client will run at http://localhost:5001, and expects an API server at http://localhost:5000
 - Visit http://localhost:5001 in a web browser to see and use the client, which is largely self-explanatory.
 
-
 ## Open Source License
 
 This work is Copyright ⓒ 2020 The Royal College of Paediatrics and Child Health, and is released under the MIT Open Source License
@@ -55,6 +54,19 @@ This work is Copyright ⓒ 2020 The Royal College of Paediatrics and Child Healt
 - Some helpful sources of information on Python style are:  
   https://www.python.org/dev/peps/pep-0008  
   https://google.github.io/styleguide/pyguide.html
+
+### Technical acknowledgements
+
+The following is a list of some of the resources, tools and frameworks used to build the Flask Demo Client
+
+- [Flask](https://flask.palletsprojects.com/en/1.1.x/quickstart/) - microframework for Python web projects
+- [FlaskForms](https://github.com/wtforms/wtforms/) - forms and validation.
+- [Jinja2](https://pypi.org/project/Jinja2/) templating engine.
+- [Werkzeug](https://palletsprojects.com/p/werkzeug/) - WSGI web application library
+- [DropzoneJS](https://www.dropzonejs.com/) - an open source javascript library for drag'n'drop file uploads.
+- Chris Griffith, Code Calamity - An implementation of his published method on chunking large files on upload.
+- [Semantic UI](https://semantic-ui.com/) - CSS framework
+- [ChartJS](https://www.chartjs.org/) - Javascript charting package
 
 ### Intellectual Property (IP)
 
